@@ -22,3 +22,8 @@ _testmain.go
 *.exe
 *.test
 *.prof
+/coverage.out
+/firebasedb.iml
+/secret.sh
+.idea/
+
