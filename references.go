@@ -15,10 +15,14 @@
 package firebasedb
 
 import (
+	"errors"
 	"net/url"
 	"path"
-    "errors"
 )
+
+type Reference struct { // TODO: check if we can replace by a simple URL
+	url url.URL
+}
 
 // withParam is a local function to add query parameter to the URL.
 func (r Reference) withParam(key, value string) Reference {
@@ -39,10 +43,10 @@ func (r Reference) Ref(p string) Reference {
 // RefFromUrl returns a reference to the root or the path specified in url.
 // err is set if the host of the url is not the same as the current database.
 func (r Reference) RefFromUrl(u url.URL) (Reference, error) {
-    if r.url.Host != u.Host {
-        return r, errors.New("The URL has not the same host as the current database")
-    }
-    return r.Ref(u.Path), nil
+	if r.url.Host != u.Host {
+		return r, errors.New("The URL has not the same host as the current database")
+	}
+	return r.Ref(u.Path), nil
 }
 
 func (r Reference) Shallow() Reference {

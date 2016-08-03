@@ -15,17 +15,8 @@
 package firebasedb
 
 import (
-	"net/http"
 	"net/url"
-	"path"
-	"strings"
-    "errors"
-    "encoding/json"
 )
-
-type Reference struct { // TODO: check if we can replace by a simple URL
-	url url.URL
-}
 
 // NewFirebaseDB opens a new Firebase Database connection using the URL u and the
 // authentication auth. Currently, only the database secret can be used as auth.
@@ -43,31 +34,3 @@ func NewFirebaseDB(u, auth string) (Reference, error) {
 		return ref, nil
 	}
 }
-
-// jsonUrl is an internal function to build the URL for the REST API
-// See https://firebase.google.com/docs/reference/rest/database/ "API Usage"
-func (r Reference) jsonUrl() string {
-	u := r.url
-	u.Path = path.Clean(u.Path)
-	if u.Path == "." {
-		u.Path = "/.json"
-	} else {
-		u.Path = strings.Join([]string{u.Path, ".json"}, "")
-	}
-	return u.String()
-}
-
-// Values reads from the database and store the content in value. It gives an error
-// if it the HTTP request fails or if it can't decode the JSON payload.
-func (r Reference) Value(value interface{}) error {
-	response, err := http.Get(r.jsonUrl())
-	if err != nil {
-		return err
-	}
-    defer response.Body.Close()
-    if response.StatusCode != 200 {
-        return errors.New(response.Status)
-    }
-    d := json.NewDecoder(response.Body)
-    return d.Decode(value)
- }

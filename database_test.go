@@ -16,9 +16,10 @@ package firebasedb
 
 import (
 	"github.com/stretchr/testify/assert"
-	"log"
 	"net/url"
 	"testing"
+	"fmt"
+	"crypto/rand"
 )
 
 const dinoFactsUrl = "https://dinosaur-facts.firebaseio.com/"
@@ -34,6 +35,17 @@ type dinosaurFact struct {
 
 type dinosaurs map[string]dinosaurFact
 type dinoScores map[string]int
+
+func uuid() string {
+	u := [16]byte{}
+	_, err := rand.Read(u[:16])
+	if err != nil {
+		panic(err)
+	}
+	u[8] = (u[8] | 0x80) & 0xBf
+	u[6] = (u[6] | 0x40) & 0x4f
+	return fmt.Sprintf("%x-%x-%x-%x-%x", u[:4], u[4:6], u[6:8], u[8:10], u[10:])
+}
 
 func TestRefOperators(t *testing.T) {
 	db, err := NewFirebaseDB(dinoFactsUrl, "")
@@ -89,17 +101,16 @@ func TestRefFromUrl(t *testing.T) {
 	generic := make(map[string]interface{})
 	u, err := url.Parse("https://dinosaur-facts.firebaseio.com/dinosaurs")
 	assert.NoError(t, err)
-    r, err := db.RefFromUrl(*u)
-    assert.NoError(t, err)
-    err = r.Shallow().Value(&generic)
+	r, err := db.RefFromUrl(*u)
+	assert.NoError(t, err)
+	err = r.Shallow().Value(&generic)
 	assert.NoError(t, err)
 	assert.Contains(t, generic, "pterodactyl")
 	assert.True(t, generic["pterodactyl"].(bool))
-    u, err = url.Parse("https://not-the-same-host.firebaseio.com/dinosaurs")
-    assert.NoError(t, err)
-    _, err = db.RefFromUrl(*u)
-    assert.Error(t, err)
-
+	u, err = url.Parse("https://not-the-same-host.firebaseio.com/dinosaurs")
+	assert.NoError(t, err)
+	_, err = db.RefFromUrl(*u)
+	assert.Error(t, err)
 
 }
 
@@ -143,6 +154,13 @@ func TestBasic(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = db.Ref("/").Shallow().Value(nil)
-	log.Println(err)
+	pika := struct {
+		Name         string `json:"name"`
+		CombatPoints int    `json:"combat_point"`
+	}{
+		Name:         "Pikachu",
+		CombatPoints: 450,
+	}
+	err = db.Ref("/pikachu").Shallow().Set(&pika, nil)
+	assert.NoError(t, err)
 }
