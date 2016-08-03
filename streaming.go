@@ -20,11 +20,11 @@ package firebasedb
 
 import (
 	"bufio"
+	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
 	"strings"
-	"encoding/json"
 )
 
 type Event struct {
@@ -98,7 +98,7 @@ func (s *sub) loop() {
 		err   error
 	}
 
-	var fetchEvent chan fetchData
+	var fetchEvent = make(chan fetchData)
 	var pending []Event
 	var err error
 
@@ -120,7 +120,7 @@ func (s *sub) loop() {
 							event: Event{},
 							err:   errors.New("First line does not start with event:"),
 						}
-					} else if !strings.HasPrefix(payload[0], "data:") {
+					} else if !strings.HasPrefix(payload[1], "data:") {
 						fetchEvent <- fetchData{
 							event: Event{},
 							err:   errors.New("Second line does not start with data:"),
@@ -166,7 +166,7 @@ func (s *sub) loop() {
 			errc <- err
 			s.reader.Close()
 			close(s.events)
-			return
+			break
 		case events <- first:
 			pending = pending[1:]
 		}

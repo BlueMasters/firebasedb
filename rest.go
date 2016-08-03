@@ -135,7 +135,7 @@ func (r Reference) Push(value interface{}) (name string, err error) {
 	}
 	result := map[string]interface{}{}
 	d := json.NewDecoder(response.Body)
-	err = d.Decode(result)
+	err = d.Decode(&result)
 	if err != nil {
 		return "", err
 	}

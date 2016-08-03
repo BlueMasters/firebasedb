@@ -16,12 +16,26 @@ package firebasedb
 
 import (
 	"errors"
+	"fmt"
 	"net/url"
 	"path"
+	"strconv"
+	"strings"
 )
 
-type Reference struct { // TODO: check if we can replace by a simple URL
+type Reference struct {
 	url url.URL
+	err error
+}
+
+func (r Reference) Error() error {
+	return r.err
+}
+
+func (r Reference) withError(err error) Reference {
+	result := r
+	result.err = err
+	return result
 }
 
 // withParam is a local function to add query parameter to the URL.
@@ -33,6 +47,27 @@ func (r Reference) withParam(key, value string) Reference {
 	return result
 }
 
+func (r Reference) withQuotedParam(key string, value interface{}) Reference {
+	var qvalue string = ""
+	var err error = nil
+	switch i := value.(type) {
+	case uint:
+		qvalue = strconv.FormatUint(uint64(i), 10)
+	case int:
+		qvalue = strconv.FormatInt(int64(i), 10)
+	case float64:
+		qvalue = strconv.FormatFloat(i, 'f', -1, 64)
+	case string:
+		qvalue = fmt.Sprintf(`"%s"`, strings.Trim(i, `"`))
+	default:
+		err = errors.New("Invalid Type")
+	}
+	if err == nil {
+		return r.withParam(key, qvalue)
+	} else {
+		return r.withError(err)
+	}
+}
 // Ref returns a reference to the root or the specified path.
 func (r Reference) Ref(p string) Reference {
 	result := r
@@ -42,11 +77,12 @@ func (r Reference) Ref(p string) Reference {
 
 // RefFromUrl returns a reference to the root or the path specified in url.
 // err is set if the host of the url is not the same as the current database.
-func (r Reference) RefFromUrl(u url.URL) (Reference, error) {
+func (r Reference) RefFromUrl(u url.URL) Reference {
 	if r.url.Host != u.Host {
-		return r, errors.New("The URL has not the same host as the current database")
+		return r.withError(errors.New("The URL has not the same host as the current database"))
+	} else {
+		return r.Ref(u.Path)
 	}
-	return r.Ref(u.Path), nil
 }
 
 func (r Reference) Shallow() Reference {

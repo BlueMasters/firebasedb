@@ -15,13 +15,11 @@
 package firebasedb
 
 import (
-	"fmt"
 	"strconv"
-	"strings"
 )
 
 func (r Reference) OrderBy(childKey string) Reference {
-	return r.withParam("orderBy", fmt.Sprintf(`"%s"`, strings.Trim(childKey, `"`)))
+	return r.withQuotedParam("orderBy", childKey)
 }
 
 func (r Reference) OrderByKey() Reference {
@@ -40,14 +38,14 @@ func (r Reference) LimitToLast(n uint64) Reference {
 	return r.withParam("limitToLast", strconv.FormatUint(n, 10))
 }
 
-func (r Reference) StartAt(n string) Reference {
-	return r.withParam("startAt", fmt.Sprintf(`"%s"`, strings.Trim(n, `"`)))
+func (r Reference) StartAt(n interface{}) Reference {
+	return r.withQuotedParam("startAt", n)
 }
 
-func (r Reference) EndAt(n string) Reference {
-	return r.withParam("endAt", fmt.Sprintf(`"%s"`, strings.Trim(n, `"`)))
+func (r Reference) EndAt(n interface{}) Reference {
+	return r.withQuotedParam("endAt", n)
 }
 
-func (r Reference) EqualTo(n string) Reference {
-	return r.withParam("equalTo", fmt.Sprintf(`"%s"`, strings.Trim(n, `"`)))
+func (r Reference) EqualTo(n interface{}) Reference {
+	return r.withQuotedParam("equalTo", n)
 }
