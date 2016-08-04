@@ -132,14 +132,14 @@ func (r Reference) Push(value interface{}) (name string, err error) {
 	if response.StatusCode != 200 {
 		return "", errors.New(response.Status)
 	}
-	result := map[string]interface{}{} // TODO check if map[string]string{}
+	result := map[string]string{}
 	d := json.NewDecoder(response.Body)
 	err = d.Decode(&result)
 	if err != nil {
 		return "", err
 	}
 	if name, ok := result["name"]; ok {
-		return name.(string), nil
+		return name, nil
 	} else {
 		return "", nil
 	}
