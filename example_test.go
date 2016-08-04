@@ -77,9 +77,15 @@ func ExampleReference_StartAt() {
 	}
 	var dinos = dinosaurs{}
 	err = db.Ref("/dinosaurs").OrderByChild("height").StartAt(3).EndAt(5).Value(&dinos)
-	for k, v := range(dinos) {
-		fmt.Printf("The %s's height is %v\n", k, v.Height)
+
+	var keys []string
+	for k := range(dinos) {
+		keys = append(keys, k)
 	}
-	// Output: The triceratops's height is 3
-	// The stegosaurus's height is 4
+	sort.Strings(keys)
+	for _, k := range(keys) {
+		fmt.Printf("The %s's height is %v\n", k, dinos[k].Height)
+	}
+	// Output: The stegosaurus's height is 4
+	// The triceratops's height is 3
 }
