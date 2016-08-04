@@ -23,6 +23,12 @@ import (
 	"path"
 )
 
+func (r Reference) WithHttpClient(c *http.Client) Reference {
+	result := r
+	result.client = c
+	return result
+}
+
 // jsonUrl is an internal function to build the URL for the REST API
 // See https://firebase.google.com/docs/reference/rest/database/ "API Usage"
 func (r Reference) jsonUrl() string {
@@ -53,7 +59,7 @@ func (r Reference) Value(value interface{}) (err error) {
 	if err != nil {
 		return err
 	}
-	response, err := http.DefaultClient.Do(req)
+	response, err := r.httpClient().Do(req)
 	if err != nil {
 		return err
 	}
@@ -74,7 +80,7 @@ func (r Reference) Set(value interface{}, result interface{}) (err error) {
 	if err != nil {
 		return err
 	}
-	response, err := http.DefaultClient.Do(req)
+	response, err := r.httpClient().Do(req)
 	if err != nil {
 		return err
 	}
@@ -99,7 +105,7 @@ func (r Reference) Patch(value interface{}, result interface{}) (err error) {
 	if err != nil {
 		return err
 	}
-	response, err := http.DefaultClient.Do(req)
+	response, err := r.httpClient().Do(req)
 	if err != nil {
 		return err
 	}
@@ -124,7 +130,7 @@ func (r Reference) Push(value interface{}) (name string, err error) {
 	if err != nil {
 		return "", err
 	}
-	response, err := http.DefaultClient.Do(req)
+	response, err := r.httpClient().Do(req)
 	if err != nil {
 		return "", err
 	}
@@ -150,7 +156,7 @@ func (r Reference) Delete() (err error) {
 	if err != nil {
 		return err
 	}
-	response, err := http.DefaultClient.Do(req)
+	response, err := r.httpClient().Do(req)
 	if err != nil {
 		return err
 	}

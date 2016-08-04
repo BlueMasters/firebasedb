@@ -21,15 +21,25 @@ import (
 	"path"
 	"strconv"
 	"strings"
+	"net/http"
 )
 
 type Reference struct {
 	url url.URL
 	err error
+	client *http.Client
 }
 
 func (r Reference) Error() error {
 	return r.err
+}
+
+func (r Reference) httpClient() *http.Client {
+	if r.client == nil {
+		return http.DefaultClient
+	} else {
+		return r.client
+	}
 }
 
 func (r Reference) withError(err error) Reference {
