@@ -31,7 +31,7 @@
 //   https://www.firebase.com/docs/rest/api
 //
 // This packages uses the "Advanced Go Concurrency Patterns" presented by Sameer Ajmani:
-//   https://blog.golang.org/advanced-go-concurrency-patterns)
+//   https://blog.golang.org/advanced-go-concurrency-patterns
 package firebasedb
 
 import (
