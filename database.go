@@ -32,7 +32,6 @@
 //
 // This packages uses the "Advanced Go Concurrency Patterns" presented by Sameer Ajmani:
 //   https://blog.golang.org/advanced-go-concurrency-patterns)
-that I used to implement the Streams.
 package firebasedb
 
 import (
