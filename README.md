@@ -4,7 +4,7 @@ Package firebasedb implements a REST client for the
 [Firebase Realtime Database](https://firebase.google.com/docs/database/).
 The API is as close as possible to the official JavaScript API.
 
-[![GoDoc](https://godoc.org/github.com/BlueMasters/firebasedb?status.svg)](https://godoc.org/github.com/spf13/hugo)
+[![GoDoc](https://godoc.org/github.com/BlueMasters/firebasedb?status.svg)](https://godoc.org/github.com/BlueMasters/firebasedb)
 [![Travis](https://img.shields.io/travis/BlueMasters/firebasedb.svg)](https://travis-ci.org/BlueMasters/firebasedb)
 [![Made in Switzerland](https://img.shields.io/badge/Made%20with%20♥%20in-Fribourg%20%2F%20Switzerland-blue.svg)](http://fribourg.ch/fr/)
 
