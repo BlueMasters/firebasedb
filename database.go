@@ -12,6 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// https://github.com/zabawaba99/firego
+// https://firebase.google.com/docs/reference/rest/database
+// https://firebase.google.com/docs/database/rest/structure-data
+// https://firebase.google.com/docs/database/rest/retrieve-data
+// https://firebase.google.com/docs/database/rest/save-data
+// https://firebase.google.com/docs/reference/js/firebase.database.Database
+// https://firebase.google.com/docs/reference/js/firebase.database.Reference
+// https://firebase.google.com/docs/reference/js/firebase.database.Query
+// https://www.firebase.com/docs/rest/api
 package firebasedb
 
 import (
