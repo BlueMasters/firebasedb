@@ -76,7 +76,7 @@ func (r Reference) Value(value interface{}) (err error) {
 		return err
 	}
 	defer response.Body.Close()
-	if response.StatusCode != 200 {
+	if response.StatusCode < 200 || response.StatusCode >=300 {
 		return errors.New(response.Status)
 	}
 	d := json.NewDecoder(response.Body)
@@ -102,7 +102,7 @@ func (r Reference) Set(value interface{}, result interface{}) (err error) {
 		return err
 	}
 	defer response.Body.Close()
-	if response.StatusCode != 200 {
+	if response.StatusCode < 200 || response.StatusCode >=300 {
 		return errors.New(response.Status)
 	}
 	if result != nil {
@@ -137,7 +137,7 @@ func (r Reference) Update(value interface{}, result interface{}) (err error) {
 		return err
 	}
 	defer response.Body.Close()
-	if response.StatusCode != 200 {
+	if response.StatusCode < 200 || response.StatusCode >=300 {
 		return errors.New(response.Status)
 	}
 	if result != nil {
@@ -167,7 +167,7 @@ func (r Reference) Push(value interface{}) (name string, err error) {
 		return "", err
 	}
 	defer response.Body.Close()
-	if response.StatusCode != 200 {
+	if response.StatusCode < 200 || response.StatusCode >=300 {
 		return "", errors.New(response.Status)
 	}
 	result := map[string]string{}
@@ -198,7 +198,7 @@ func (r Reference) Remove() (err error) {
 		return err
 	}
 	defer response.Body.Close()
-	if response.StatusCode != 200 {
+	if response.StatusCode < 200 || response.StatusCode >=300 {
 		return errors.New(response.Status)
 	}
 	return nil

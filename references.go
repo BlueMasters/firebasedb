@@ -24,16 +24,22 @@ import (
 	"net/http"
 )
 
+// Reference represents a specific location in the database and can be used
+// for reading or writing data to that database location.
 type Reference struct {
 	url url.URL
 	err error
 	client *http.Client
 }
 
+// Error returns the error from a reference. Note that an error is set as soon as
+// something wrong occurs with reference operations and is never reset.
 func (r Reference) Error() error {
 	return r.err
 }
 
+// httpClient returns the HTTP client from the reference or
+// http.DefaultClient if no client has been configured.
 func (r Reference) httpClient() *http.Client {
 	if r.client == nil {
 		return http.DefaultClient
@@ -42,6 +48,7 @@ func (r Reference) httpClient() *http.Client {
 	}
 }
 
+// withParam is a local function to add an error to a reference.
 func (r Reference) withError(err error) Reference {
 	result := r
 	result.err = err
@@ -57,6 +64,8 @@ func (r Reference) withParam(key, value string) Reference {
 	return result
 }
 
+// withParam is a local function to add quoted query parameter to the URL. Integer are
+// returned as numbers and string are surrounded by double quotes.
 func (r Reference) withQuotedParam(key string, value interface{}) Reference {
 	var qvalue string = ""
 	var err error = nil
@@ -79,6 +88,9 @@ func (r Reference) withQuotedParam(key string, value interface{}) Reference {
 	}
 }
 // Ref returns a reference to the root or the specified path.
+// See https://firebase.google.com/docs/reference/js/firebase.database.Reference#ref
+// or https://firebase.google.com/docs/reference/js/firebase.database.Database#ref
+// for more details.
 func (r Reference) Ref(p string) Reference {
 	result := r
 	result.url.Path = path.Clean(path.Join("/", p))
@@ -87,6 +99,9 @@ func (r Reference) Ref(p string) Reference {
 
 // RefFromUrl returns a reference to the root or the path specified in url.
 // err is set if the host of the url is not the same as the current database.
+//
+// See https://firebase.google.com/docs/reference/js/firebase.database.Database#refFromURL
+// for more details.
 func (r Reference) RefFromUrl(u url.URL) Reference {
 	if r.url.Host != u.Host {
 		return r.withError(errors.New("The URL has not the same host as the current database"))
@@ -95,27 +110,64 @@ func (r Reference) RefFromUrl(u url.URL) Reference {
 	}
 }
 
+// Rules returns a reference to the rules settings of the database.
 func (r Reference) Rules() Reference {
 	return r.Ref(".settings/rules")
 }
 
+// Auth authenticates the request to allow access to data protected by Firebase Realtime Database Rules.
+// The argument can either be your Firebase app's secret or an authentication token
+//
+// See https://firebase.google.com/docs/reference/rest/database/#section-param-auth
+// and https://firebase.google.com/docs/reference/rest/database/user-auth
+// for more details.
+func (r Reference) Auth(auth string) Reference {
+	return r.withParam("auth", auth)
+}
 
+// Shallow is an advanced feature, designed to help you work with large datasets without
+// needing to download everything. Set this to true to limit the depth of the data returned
+// at a location. If the data at the location is a JSON primitive (string, number or boolean),
+// its value will simply be returned. If the data snapshot at the location is a JSON object,
+// the values for each key will be truncated to true.
+//
+// See https://firebase.google.com/docs/reference/rest/database/#section-param-shallow
+// for more details.
 func (r Reference) Shallow() Reference {
 	return r.withParam("shallow", "true")
 }
 
+// Pretty is used to view the data in a human-readable format. This is usually only used
+// for debugging purposes.
+//
+// See https://firebase.google.com/docs/reference/rest/database/#section-param-print
+// for more details.
 func (r Reference) Pretty() Reference {
 	return r.withParam("print", "pretty")
 }
 
+// Silent is used to suppress the output from the server when writing data. The resulting
+// response will be empty and indicated by a 204 No Content HTTP status code.
+//
+// See https://firebase.google.com/docs/reference/rest/database/#section-param-print
+// for more details.
 func (r Reference) Silent() Reference {
 	return r.withParam("print", "silent")
 }
 
+// Export returns a reference that include priority information in the response.
+//
+// See https://firebase.google.com/docs/reference/rest/database/#section-param-format
+// for more details.
 func (r Reference) Export() Reference {
 	return r.withParam("format", "export")
 }
 
+// Key returns the last part of the current path.
+// For example, "ada" is the key for https://sample-app.firebaseio.com/users/ada.
+//
+// See https://firebase.google.com/docs/reference/js/firebase.database.Reference#key
+// for more detail.
 func (r Reference) Key() string {
 	p := path.Base(path.Clean(r.url.Path))
 	if p == "." || p == "/" {
@@ -125,22 +177,40 @@ func (r Reference) Key() string {
 	}
 }
 
+// Parent returns the parent location of a reference.
+//
+// See https://firebase.google.com/docs/reference/js/firebase.database.Reference#parent
+// for more details.
 func (r Reference) Parent() Reference {
 	result := r
 	result.url.Path = path.Clean(path.Join(result.url.Path, ".."))
 	return result
 }
 
+// Root returns the root location of a reference.
+//
+// See https://firebase.google.com/docs/reference/js/firebase.database.Reference#root
+// for more details.
 func (r Reference) Root() Reference {
 	result := r
 	result.url.Path = "/"
 	return result
 }
 
+// Childs returns a reference for the location at the specified relative path.
+//
 // See https://firebase.google.com/docs/reference/js/firebase.database.Reference#child
 // for more details.
 func (r Reference) Child(p string) Reference {
 	result := r
 	result.url.Path = path.Clean(path.Join(result.url.Path, p))
 	return result
+}
+
+// String returns the absolute URL for this location.
+//
+// See https://firebase.google.com/docs/reference/js/firebase.database.Reference#toString
+// for more details.
+func (r Reference) String() string {
+	return r.url.String()
 }

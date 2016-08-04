@@ -33,6 +33,7 @@ func (r Reference) OrderByKey() Reference {
 }
 
 // See https://firebase.google.com/docs/reference/js/firebase.database.Reference#orderByValue
+// or https://firebase.google.com/docs/reference/js/firebase.database.Query#orderByValue
 // for more details
 func (r Reference) OrderByValue() Reference {
 	return r.OrderByChild("$value")
@@ -53,6 +54,7 @@ func (r Reference) LimitToLast(n uint64) Reference {
 }
 
 // See https://firebase.google.com/docs/reference/js/firebase.database.Reference#startAt
+// or https://firebase.google.com/docs/reference/js/firebase.database.Query#startAt
 // for more details.
 func (r Reference) StartAt(n interface{}) Reference {
 	return r.withQuotedParam("startAt", n)
