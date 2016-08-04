@@ -18,34 +18,56 @@ import (
 	"strconv"
 )
 
-func (r Reference) OrderBy(childKey string) Reference {
+// See https://firebase.google.com/docs/reference/js/firebase.database.Reference#orderByChild
+// or https://firebase.google.com/docs/reference/js/firebase.database.Query#orderByChild
+// for more details
+func (r Reference) OrderByChild(childKey string) Reference {
 	return r.withQuotedParam("orderBy", childKey)
 }
 
+// See https://firebase.google.com/docs/reference/js/firebase.database.Reference#orderByKey
+// https://firebase.google.com/docs/reference/js/firebase.database.Query#orderByKey
+// for more details
 func (r Reference) OrderByKey() Reference {
-	return r.OrderBy("$key")
+	return r.OrderByChild("$key")
 }
 
+// See https://firebase.google.com/docs/reference/js/firebase.database.Reference#orderByValue
+// for more details
 func (r Reference) OrderByValue() Reference {
-	return r.OrderBy("$value")
+	return r.OrderByChild("$value")
 }
 
+// See https://firebase.google.com/docs/reference/js/firebase.database.Reference#limitToFirst
+// or https://firebase.google.com/docs/reference/js/firebase.database.Query#limitToFirst
+// for more details
 func (r Reference) LimitToFirst(n uint64) Reference {
 	return r.withParam("limitToFirst", strconv.FormatUint(n, 10))
 }
 
+// See https://firebase.google.com/docs/reference/js/firebase.database.Reference#limitToLast
+// or https://firebase.google.com/docs/reference/js/firebase.database.Query#limitToLast
+// for more details
 func (r Reference) LimitToLast(n uint64) Reference {
 	return r.withParam("limitToLast", strconv.FormatUint(n, 10))
 }
 
+// See https://firebase.google.com/docs/reference/js/firebase.database.Reference#startAt
+// for more details.
 func (r Reference) StartAt(n interface{}) Reference {
 	return r.withQuotedParam("startAt", n)
 }
 
+// See https://firebase.google.com/docs/reference/js/firebase.database.Reference#endAt
+// or https://firebase.google.com/docs/reference/js/firebase.database.Query#endAt
+// for more details
 func (r Reference) EndAt(n interface{}) Reference {
 	return r.withQuotedParam("endAt", n)
 }
 
+// See https://firebase.google.com/docs/reference/js/firebase.database.Reference#equalTo
+// or https://firebase.google.com/docs/reference/js/firebase.database.Query#equalTo
+// for more details
 func (r Reference) EqualTo(n interface{}) Reference {
 	return r.withQuotedParam("equalTo", n)
 }

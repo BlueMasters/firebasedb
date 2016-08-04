@@ -76,7 +76,7 @@ func ExampleReference_StartAt() {
 		log.Fatalf("Error opening database: %v", err)
 	}
 	var dinos = dinosaurs{}
-	err = db.Ref("/dinosaurs").OrderBy("height").StartAt(3).EndAt(5).Value(&dinos)
+	err = db.Ref("/dinosaurs").OrderByChild("height").StartAt(3).EndAt(5).Value(&dinos)
 	for k, v := range(dinos) {
 		fmt.Printf("The %s's height is %v\n", k, v.Height)
 	}

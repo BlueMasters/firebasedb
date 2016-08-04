@@ -69,7 +69,7 @@ func TestStream(t *testing.T) {
 	err = s.Close()
 	assert.NoError(t, err)
 
-	err = root.Delete()
+	err = root.Remove()
 	assert.NoError(t, err)
 
 	generic := map[string]interface{}{}

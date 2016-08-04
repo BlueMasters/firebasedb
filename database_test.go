@@ -147,21 +147,21 @@ func TestQueries(t *testing.T) {
 	db, err := NewFirebaseDB(dinoFactsUrl, "")
 	assert.NoError(t, err)
 	var dinos = dinosaurs{}
-	err = db.Ref("/dinosaurs").OrderBy("height").StartAt(3).EndAt(5).Value(&dinos)
+	err = db.Ref("/dinosaurs").OrderByChild("height").StartAt(3).EndAt(5).Value(&dinos)
 	assert.Contains(t, dinos, "triceratops")
 	assert.Contains(t, dinos, "stegosaurus")
 	assert.NotContains(t, dinos, "lambeosaurus")
 	assert.NotContains(t, dinos, "bruhathkayosaurus")
 
 	dinos = dinosaurs{}
-	err = db.Ref("/dinosaurs").OrderBy("height").EqualTo(uint(4)).Value(&dinos)
+	err = db.Ref("/dinosaurs").OrderByChild("height").EqualTo(uint(4)).Value(&dinos)
 	assert.Contains(t, dinos, "stegosaurus")
 	assert.NotContains(t, dinos, "triceratops")
 	assert.NotContains(t, dinos, "lambeosaurus")
 	assert.NotContains(t, dinos, "bruhathkayosaurus")
 
 	dinos = dinosaurs{}
-	err = db.Ref("/dinosaurs").OrderBy("height").StartAt(2.5).EndAt(4.5).Value(&dinos)
+	err = db.Ref("/dinosaurs").OrderByChild("height").StartAt(2.5).EndAt(4.5).Value(&dinos)
 	assert.Contains(t, dinos, "triceratops")
 	assert.Contains(t, dinos, "stegosaurus")
 	assert.NotContains(t, dinos, "lambeosaurus")
@@ -209,7 +209,7 @@ func TestSet(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, p2.CP, pika.CP)
 
-	err = root.Delete()
+	err = root.Remove()
 	assert.NoError(t, err)
 }
 
@@ -236,7 +236,7 @@ func TestPatch(t *testing.T) {
 	assert.Equal(t, pika.CP, p2.CP)
 
 	change := map[string]interface{}{"combat_point": 370}
-	err = root.Child("pikachu").Patch(&change, nil)
+	err = root.Child("pikachu").Update(&change, nil)
 	assert.NoError(t, err)
 
 	p2 = pokemon{}
@@ -244,7 +244,7 @@ func TestPatch(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 370, p2.CP)
 
-	err = root.Delete()
+	err = root.Remove()
 	assert.NoError(t, err)
 }
 
@@ -279,6 +279,6 @@ func TestPush(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 2, len(p))
 
-	err = root.Delete()
+	err = root.Remove()
 	assert.NoError(t, err)
 }

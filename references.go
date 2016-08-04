@@ -137,6 +137,8 @@ func (r Reference) Root() Reference {
 	return result
 }
 
+// See https://firebase.google.com/docs/reference/js/firebase.database.Reference#child
+// for more details.
 func (r Reference) Child(p string) Reference {
 	result := r
 	result.url.Path = path.Clean(path.Join(result.url.Path, p))

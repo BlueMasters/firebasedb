@@ -12,6 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// References:
+// https://www.firebase.com/docs/rest/api
+// https://firebase.google.com/docs/reference/rest/database
+// https://firebase.google.com/docs/database/rest/structure-data
+// https://firebase.google.com/docs/database/rest/save-data
+// https://firebase.google.com/docs/database/rest/retrieve-data
+
+
 package firebasedb
 
 import (
@@ -23,6 +31,8 @@ import (
 	"path"
 )
 
+// WithHttpClient sets a custom HTTP client for the REST requests. If set to nil (default),
+// then http.DefaultClient is used.
 func (r Reference) WithHttpClient(c *http.Client) Reference {
 	result := r
 	result.client = c
@@ -30,7 +40,7 @@ func (r Reference) WithHttpClient(c *http.Client) Reference {
 }
 
 // jsonUrl is an internal function to build the URL for the REST API
-// See https://firebase.google.com/docs/reference/rest/database/ "API Usage"
+// See https://firebase.google.com/docs/reference/rest/database/ "API Usage".
 func (r Reference) jsonUrl() string {
 	u := r.url
 	u.Path = path.Clean(u.Path)
@@ -42,6 +52,8 @@ func (r Reference) jsonUrl() string {
 	return u.String()
 }
 
+// jsonReader returns a reader (io.Reader) on the JSON representation
+// of the value passed as parameter.
 func jsonReader(value interface{}) (io.Reader, error) {
 	b := new(bytes.Buffer)
 	enc := json.NewEncoder(b)
@@ -52,7 +64,7 @@ func jsonReader(value interface{}) (io.Reader, error) {
 	return b, nil
 }
 
-// Values reads from the database and store the content in value. It gives an error
+// Value reads from the database and store the content in value. It gives an error
 // if it the request fails or if it can't decode the returned payload.
 func (r Reference) Value(value interface{}) (err error) {
 	req, err := http.NewRequest("GET", r.jsonUrl(), nil)
@@ -71,6 +83,11 @@ func (r Reference) Value(value interface{}) (err error) {
 	return d.Decode(value)
 }
 
+// Set write data to the database location given by the Reference r.
+// This will overwrite any data at this location and all child locations.
+//
+// See https://firebase.google.com/docs/reference/js/firebase.database.Reference#set
+// for more details.
 func (r Reference) Set(value interface{}, result interface{}) (err error) {
 	b, err := jsonReader(value)
 	if err != nil {
@@ -96,7 +113,17 @@ func (r Reference) Set(value interface{}, result interface{}) (err error) {
 	}
 }
 
-func (r Reference) Patch(value interface{}, result interface{}) (err error) {
+// Update writes multiple values to the database at once. The "value" argument contains multiple
+// property/value pairs that will be written to the database together. Each child property can
+// either be a simple property (for example, "name"), or a relative path (for example, "name/first")
+// from the current location to the data to update.
+//
+// As opposed to the set() method, update() can be use to selectively update only the referenced properties
+// at the current location (instead of replacing all the child properties at the current location).
+//
+// See https://firebase.google.com/docs/reference/js/firebase.database.Reference#update
+// for more details.
+func (r Reference) Update(value interface{}, result interface{}) (err error) {
 	b, err := jsonReader(value)
 	if err != nil {
 		return err
@@ -121,6 +148,11 @@ func (r Reference) Patch(value interface{}, result interface{}) (err error) {
 	}
 }
 
+// Push generates a new child location using a unique key and returns this key
+// in the parameter "name".
+//
+// See https://firebase.google.com/docs/reference/js/firebase.database.Reference#push
+// for more details.
 func (r Reference) Push(value interface{}) (name string, err error) {
 	b, err := jsonReader(value)
 	if err != nil {
@@ -151,7 +183,12 @@ func (r Reference) Push(value interface{}) (name string, err error) {
 	}
 }
 
-func (r Reference) Delete() (err error) {
+// Remove deletes the data at the database location given by the reference r.
+// Any data at child locations will also be deleted.
+//
+// See https://firebase.google.com/docs/reference/js/firebase.database.Reference#remove
+// for more details.
+func (r Reference) Remove() (err error) {
 	req, err := http.NewRequest("DELETE", r.jsonUrl(), nil)
 	if err != nil {
 		return err
