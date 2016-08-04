@@ -33,7 +33,7 @@ import (
 // See https://firebase.google.com/docs/reference/rest/database/#section-streaming
 // for more details.
 type Event struct {
-	Type string
+	Type string // can be put, patch, keep-alive, cancel, or auth_revoked
 	data string
 }
 
