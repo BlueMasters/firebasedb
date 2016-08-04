@@ -85,6 +85,11 @@ func (r Reference) RefFromUrl(u url.URL) Reference {
 	}
 }
 
+func (r Reference) Rules() Reference {
+	return r.Ref(".settings/rules")
+}
+
+
 func (r Reference) Shallow() Reference {
 	return r.withParam("shallow", "true")
 }
