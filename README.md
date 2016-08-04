@@ -1,8 +1,12 @@
-# Firebase Database GO interface
+# Firebase Realtime Database GO client
 
-This is a GO interface for the Firebase Database. The goal of this
-package was to have robust code, with an interface as close as
-possible to the official APIs.
+Package firebasedb implements a REST client for the
+[Firebase Realtime Database](https://firebase.google.com/docs/database/).
+The API is as close as possible to the official JavaScript API.
+
+[![GoDoc](https://godoc.org/github.com/BlueMasters/firebasedb?status.svg)](https://godoc.org/github.com/spf13/hugo)
+[![Travis](https://img.shields.io/travis/BlueMasters/firebasedb.svg)](https://travis-ci.org/BlueMasters/firebasedb)
+[![Made in Switzerland](https://img.shields.io/badge/Made%20with%20♥%20in-Fribourg%20%2F%20Switzerland-blue.svg)](http://fribourg.ch/fr/)
 
 ## Credits
 * Steven Berlanga for [another implementation](https://github.com/zabawaba99/firego) of
