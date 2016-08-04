@@ -21,7 +21,6 @@ import (
 	"io"
 	"net/http"
 	"path"
-	"strings"
 )
 
 // jsonUrl is an internal function to build the URL for the REST API
@@ -32,7 +31,7 @@ func (r Reference) jsonUrl() string {
 	if u.Path == "." {
 		u.Path = "/.json"
 	} else {
-		u.Path = strings.Join([]string{u.Path, ".json"}, "")
+		u.Path += ".json"
 	}
 	return u.String()
 }
@@ -48,7 +47,7 @@ func jsonReader(value interface{}) (io.Reader, error) {
 }
 
 // Values reads from the database and store the content in value. It gives an error
-// if it the HTTP request fails or if it can't decode the JSON payload.
+// if it the request fails or if it can't decode the returned payload.
 func (r Reference) Value(value interface{}) (err error) {
 	req, err := http.NewRequest("GET", r.jsonUrl(), nil)
 	if err != nil {
@@ -133,7 +132,7 @@ func (r Reference) Push(value interface{}) (name string, err error) {
 	if response.StatusCode != 200 {
 		return "", errors.New(response.Status)
 	}
-	result := map[string]interface{}{}
+	result := map[string]interface{}{} // TODO check if map[string]string{}
 	d := json.NewDecoder(response.Body)
 	err = d.Decode(&result)
 	if err != nil {
