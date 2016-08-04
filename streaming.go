@@ -27,11 +27,18 @@ import (
 	"strings"
 )
 
+// Event is the type used to represent streaming events. The type of the event
+// can be read directly from the type. The data is extracted using the Value method
+//
+// See https://firebase.google.com/docs/reference/rest/database/#section-streaming
+// for more details.
 type Event struct {
 	Type string
 	data string
 }
 
+// Value unmarshal data from an event. It returns the data in v and the path
+// of the event in the path return attribute.
 func (e Event) Value(v interface{}) (path string, err error) {
 	var p struct {
 		Path string      `json:"path"`
@@ -47,6 +54,8 @@ func (e Event) Value(v interface{}) (path string, err error) {
 	return path, err
 }
 
+// Subscription is the interface for event subscriptions. Subscriptions
+// are returned by the Subscribe method.
 type Subscription interface {
 	Events() <-chan Event // stream of Events
 	Close() error         // shuts down the stream
@@ -59,6 +68,8 @@ type sub struct {
 	closing chan chan error // for Close
 }
 
+// Subscribe returns a subscription on the reference. The returned subscription
+// is used to access the streamed events.
 func (r Reference) Subscribe() (Subscription, error) {
 	req, err := http.NewRequest("GET", r.jsonUrl(), nil)
 	if err != nil {
@@ -82,16 +93,19 @@ func (r Reference) Subscribe() (Subscription, error) {
 	return s, nil
 }
 
+// Events returns the event channel from the subscription.
 func (s *sub) Events() <-chan Event {
 	return s.events
 }
 
+// Close closes the subscription and finishes the request.
 func (s *sub) Close() error {
 	errChan := make(chan error)
 	s.closing <- errChan
 	return <-errChan
 }
 
+// main loop
 func (s *sub) loop() {
 	type fetchData struct {
 		event Event
