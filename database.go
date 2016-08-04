@@ -12,8 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package firebasedb implements a REST client for the Firebase Realtime Database
+// (https://firebase.google.com/docs/database/). The API is as close as possible
+// to the official JavaScript API.
+//
 // Similar / related project:
 //   https://github.com/zabawaba99/firego
+//   https://github.com/cosn/firebase
 //
 // Reference / documentation:
 //   https://firebase.google.com/docs/reference/rest/database
@@ -24,6 +29,10 @@
 //   https://firebase.google.com/docs/reference/js/firebase.database.Reference
 //   https://firebase.google.com/docs/reference/js/firebase.database.Query
 //   https://www.firebase.com/docs/rest/api
+//
+// This packages uses the "Advanced Go Concurrency Patterns" presented by Sameer Ajmani:
+//   https://blog.golang.org/advanced-go-concurrency-patterns)
+that I used to implement the Streams.
 package firebasedb
 
 import (
