@@ -38,11 +38,12 @@ func TestStream(t *testing.T) {
 	err = root.Child("pikachu").Set(&pika, nil)
 	assert.NoError(t, err)
 
-	s, err := root.Subscribe()
+	s, err := root.Subscribe(false, true)
 	assert.NoError(t, err)
 
 	select {
 	case e := <-s.Events():
+		assert.NoError(t, e.Err)
 		assert.Equal(t, e.Type, "put")
 		p := map[string]pokemon{}
 		path, err := e.Value(&p)
