@@ -40,7 +40,7 @@ func ExampleReference_Value() {
 		log.Fatalf("Error opening database: %v", err)
 	}
 	var dinos = dinosaurs{}
-	db.Ref("/dinosaurs").Value(&dinos)
+	db.Ref("dinosaurs").Value(&dinos)
 	var keys []string
 	for k := range(dinos) {
 		keys = append(keys, k)
@@ -76,7 +76,7 @@ func ExampleReference_StartAt() {
 		log.Fatalf("Error opening database: %v", err)
 	}
 	var dinos = dinosaurs{}
-	err = db.Ref("/dinosaurs").OrderByChild("height").StartAt(3).EndAt(5).Value(&dinos)
+	err = db.Ref("dinosaurs").OrderByChild("height").StartAt(3).EndAt(5).Value(&dinos)
 
 	var keys []string
 	for k := range(dinos) {
@@ -88,4 +88,11 @@ func ExampleReference_StartAt() {
 	}
 	// Output: The stegosaurus's height is 4
 	// The triceratops's height is 3
+}
+
+func ExampleReference_String() {
+	const dinoFactsUrl = "https://dinosaur-facts.firebaseio.com/"
+	db, _ := NewFirebaseDB(dinoFactsUrl, "")
+	fmt.Println(db.Ref("dinosaurs").Child("stegosaurus").String())
+	// Output: https://dinosaur-facts.firebaseio.com/dinosaurs/stegosaurus
 }
