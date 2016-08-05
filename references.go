@@ -34,12 +34,17 @@ type Reference struct {
 	retry bool
 }
 
+// SkipKeepAlive sets the skipKeepAlive flag for the Reference. When the references is
+// used in the Subscribe() method, the skipKeepAlive flag controls the automatic handling
+// if keep-alive messages.
 func (r Reference) SkipKeepAlive(x bool) Reference {
 	result := r
 	r.skipKeepAlive = x
 	return result
 }
 
+// Retry sets the retry flag for the Reference. When a references has the retry flag set,
+// then the library will retry the requests in case of failures.
 func (r Reference) Retry(x bool) Reference {
 	result := r
 	r.retry = x
@@ -70,7 +75,7 @@ func (r Reference) withError(err error) Reference {
 	return result
 }
 
-// withParam is a local function to add query parameter to the URL.
+// withParam is a local function to add query parameter to the URL of the reference.
 func (r Reference) withParam(key, value string) Reference {
 	result := r
 	q := r.url.Query()
