@@ -96,3 +96,22 @@ func ExampleReference_String() {
 	fmt.Println(db.Ref("dinosaurs").Child("stegosaurus").String())
 	// Output: https://dinosaur-facts.firebaseio.com/dinosaurs/stegosaurus
 }
+
+func ExampleReference_SkipKeepAlive() {
+	const dinoFactsUrl = "https://dinosaur-facts.firebaseio.com/"
+	db, _ := NewFirebaseDB(dinoFactsUrl, "")
+
+	// Get an events subscription that filters out keep-alive requests
+	s0, err := db.Ref("dinosaurs").SkipKeepAlive(true).Subscribe()
+	if err != nil {
+		log.Fatal(err)
+	}
+	s0.Close()
+
+	// Get an events subscription that includes keep-alive requests
+	s1, err := db.Ref("dinosaurs").SkipKeepAlive(false).Subscribe()
+	if err != nil {
+		log.Fatal(err)
+	}
+	s1.Close()
+}

@@ -34,7 +34,7 @@ import (
 // for more details.
 type Event struct {
 	Type string // can be put, patch, keep-alive, cancel, or auth_revoked
-    Err error
+	Err  error
 	data string
 }
 
@@ -64,11 +64,10 @@ type Subscription interface {
 
 // sub implements the Subscription interface.
 type sub struct {
-	reader        io.ReadCloser   // from the HTTP request's body
-	retry         bool            // retry HTTP connections in cas of failure
-	skipKeepAlive bool            // skip keep-alive messages
-	events        chan Event      // sends events to the user
-	closing       chan chan error // for Close
+	reader    io.ReadCloser   // from the HTTP request's body
+	reference Reference       // copy of the reference
+	events    chan Event      // sends events to the user
+	closing   chan chan error // for Close
 }
 
 // Subscribe returns a subscription on the reference. The returned subscription
@@ -89,8 +88,7 @@ func (r Reference) Subscribe() (Subscription, error) {
 	}
 	s := &sub{
 		reader:        response.Body,
-		retry:         r.retry,
-		skipKeepAlive: r.skipKeepAlive,
+		reference:     r,
 		events:        make(chan Event),      // for Events
 		closing:       make(chan chan error), // for Close
 	}
@@ -113,7 +111,7 @@ func (s *sub) Close() error {
 // main loop
 func (s *sub) loop() {
 
-    var fetchEvent = make(chan Event)
+	var fetchEvent = make(chan Event)
 	var pending []Event
 
 	go func() { // read the payload and feed the fetchEvent channel
@@ -131,21 +129,21 @@ func (s *sub) loop() {
 				if lineCount == len(payload) {
 					if !strings.HasPrefix(payload[0], "event:") {
 						fetchEvent <- Event{
-                            Err: errors.New("First line does not start with event:"),
-                        }
+							Err: errors.New("First line does not start with event:"),
+						}
 					} else if !strings.HasPrefix(payload[1], "data:") {
 						fetchEvent <- Event{
 							Err: errors.New("Second line does not start with data:"),
 						}
 					} else {
-                        eventType :=  strings.Trim(strings.TrimPrefix(payload[0], "event:"), " \r\n")
-                        if !(s.skipKeepAlive && eventType == "keep-alive") {
-                            fetchEvent <- Event{
-                                Type: eventType,
-                                data: strings.Trim(strings.TrimPrefix(payload[1], "data:"), " \r\n"),
-                                Err: nil,
-                            }
-                        }
+						eventType := strings.Trim(strings.TrimPrefix(payload[0], "event:"), " \r\n")
+						if !(s.reference.skipKeepAlive && eventType == "keep-alive") {
+							fetchEvent <- Event{
+								Type: eventType,
+								data: strings.Trim(strings.TrimPrefix(payload[1], "data:"), " \r\n"),
+								Err:  nil,
+							}
+						}
 					}
 				} else {
 					fetchEvent <- Event{Err: errors.New("Bad formated body")}
@@ -170,7 +168,7 @@ func (s *sub) loop() {
 
 		select {
 		case event := <-fetchEvent:
-            pending = append(pending, event)
+			pending = append(pending, event)
 		case errc := <-s.closing:
 			errc <- nil
 			s.reader.Close()
