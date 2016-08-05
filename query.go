@@ -50,8 +50,8 @@ func (r Reference) OrderByValue() Reference {
 // See https://firebase.google.com/docs/reference/js/firebase.database.Reference#limitToFirst
 // or https://firebase.google.com/docs/reference/js/firebase.database.Query#limitToFirst
 // for more details
-func (r Reference) LimitToFirst(n uint64) Reference {
-	return r.withParam("limitToFirst", strconv.FormatUint(n, 10))
+func (r Reference) LimitToFirst(n int) Reference {
+	return r.withParam("limitToFirst", strconv.Itoa(n))
 }
 
 // LimitToLast generates a new query limited to the last specific number of children.
@@ -59,8 +59,8 @@ func (r Reference) LimitToFirst(n uint64) Reference {
 // See https://firebase.google.com/docs/reference/js/firebase.database.Reference#limitToLast
 // or https://firebase.google.com/docs/reference/js/firebase.database.Query#limitToLast
 // for more details
-func (r Reference) LimitToLast(n uint64) Reference {
-	return r.withParam("limitToLast", strconv.FormatUint(n, 10))
+func (r Reference) LimitToLast(n int) Reference {
+	return r.withParam("limitToLast", strconv.Itoa(n))
 }
 
 // StartAt creates a query with the specified starting point.
