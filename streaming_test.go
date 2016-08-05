@@ -38,7 +38,7 @@ func TestStream(t *testing.T) {
 	err = root.Child("pikachu").Set(&pika, nil)
 	assert.NoError(t, err)
 
-	s, err := root.Subscribe(false, true)
+	s, err := root.SkipKeepAlive(true).Subscribe()
 	assert.NoError(t, err)
 
 	select {

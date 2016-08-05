@@ -26,7 +26,7 @@ var allSubscriptions []Subscription
 var result chan string
 
 func startReceiver(t *testing.T, r Reference, wg *sync.WaitGroup, n int) {
-	s, err := r.Child("live").Subscribe(false, true)
+	s, err := r.Child("live").SkipKeepAlive(true).Subscribe()
 	allSubscriptions[n] = s
 	assert.NoError(t, err)
 	wg.Done()

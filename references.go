@@ -30,7 +30,22 @@ type Reference struct {
 	url url.URL
 	err error
 	client *http.Client
+	skipKeepAlive bool
+	retry bool
 }
+
+func (r Reference) SkipKeepAlive(x bool) Reference {
+	result := r
+	r.skipKeepAlive = x
+	return result
+}
+
+func (r Reference) Retry(x bool) Reference {
+	result := r
+	r.retry = x
+	return result
+}
+
 
 // Error returns the error from a reference. Note that an error is set as soon as
 // something wrong occurs with reference operations and is never reset.

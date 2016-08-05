@@ -73,7 +73,7 @@ type sub struct {
 
 // Subscribe returns a subscription on the reference. The returned subscription
 // is used to access the streamed events.
-func (r Reference) Subscribe(retry, skipKeepAlive bool) (Subscription, error) {
+func (r Reference) Subscribe() (Subscription, error) {
 	req, err := http.NewRequest("GET", r.jsonUrl(), nil)
 	if err != nil {
 		return nil, err
@@ -89,8 +89,8 @@ func (r Reference) Subscribe(retry, skipKeepAlive bool) (Subscription, error) {
 	}
 	s := &sub{
 		reader:        response.Body,
-		retry:         retry,
-		skipKeepAlive: skipKeepAlive,
+		retry:         r.retry,
+		skipKeepAlive: r.skipKeepAlive,
 		events:        make(chan Event),      // for Events
 		closing:       make(chan chan error), // for Close
 	}
