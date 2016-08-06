@@ -38,7 +38,7 @@ type Event struct {
 	data string
 }
 
-// Value unmarshal data from an event. It returns the data in v and the path
+// Value unmarshals data from an event. It returns the data in v and the path
 // of the event in the path return attribute.
 func (e Event) Value(v interface{}) (path string, err error) {
 	var p struct {
@@ -57,22 +57,16 @@ func (e Event) Value(v interface{}) (path string, err error) {
 
 // Subscription is the interface for event subscriptions. Subscriptions
 // are returned by the Subscribe method.
-type Subscription interface {
-	Events() <-chan Event // stream of Events
-	Close() error         // shuts down the stream
-}
-
-// sub implements the Subscription interface.
-type sub struct {
-	reader    io.ReadCloser   // from the HTTP request's body
-	reference Reference       // copy of the reference
-	events    chan Event      // sends events to the user
-	closing   chan chan error // for Close
+type Subscription struct {
+    reader    io.ReadCloser   // from the HTTP request's body
+    reference Reference       // copy of the reference
+    events    chan Event      // sends events to the user
+    closing   chan chan error // for Close
 }
 
 // Subscribe returns a subscription on the reference. The returned subscription
 // is used to access the streamed events.
-func (r Reference) Subscribe() (Subscription, error) {
+func (r Reference) Subscribe() (*Subscription, error) {
 	req, err := http.NewRequest("GET", r.jsonUrl(), nil)
 	if err != nil {
 		return nil, err
@@ -86,7 +80,7 @@ func (r Reference) Subscribe() (Subscription, error) {
 		response.Body.Close()
 		return nil, errors.New(response.Status)
 	}
-	s := &sub{
+	s := &Subscription{
 		reader:        response.Body,
 		reference:     r,
 		events:        make(chan Event),      // for Events
@@ -97,19 +91,19 @@ func (r Reference) Subscribe() (Subscription, error) {
 }
 
 // Events returns the event channel from the subscription.
-func (s *sub) Events() <-chan Event {
+func (s *Subscription) Events() <-chan Event {
 	return s.events
 }
 
 // Close closes the subscription and finishes the request.
-func (s *sub) Close() error {
+func (s *Subscription) Close() error {
 	errChan := make(chan error)
 	s.closing <- errChan
 	return <-errChan
 }
 
 // main loop
-func (s *sub) loop() {
+func (s *Subscription) loop() {
 
 	var fetchEvent = make(chan Event)
 	var pending []Event
@@ -168,6 +162,8 @@ func (s *sub) loop() {
 
 		select {
 		case event := <-fetchEvent:
+			// Currently, I am not controlling the size of the pending queue.
+			// But the structure of this program enables those check if required.
 			pending = append(pending, event)
 		case errc := <-s.closing:
 			errc <- nil

@@ -22,7 +22,7 @@ import (
 	"time"
 )
 
-var allSubscriptions []Subscription
+var allSubscriptions []*Subscription
 var result chan string
 
 func startReceiver(t *testing.T, r Reference, wg *sync.WaitGroup, n int) {
@@ -58,7 +58,7 @@ func TestStreamXXL(t *testing.T) {
 
 	result = make(chan string)
 
-	allSubscriptions = make([]Subscription, numberOfReceivers)
+	allSubscriptions = make([]*Subscription, numberOfReceivers)
 	db, err := NewFirebaseDB(testingDbUrl, testingDbSecret)
 	assert.NoError(t, err)
 	root := db.Ref(uuid())
