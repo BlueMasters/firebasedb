@@ -28,7 +28,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
-	"path"
+	pathLib "path"
 )
 
 // WithHttpClient sets a custom HTTP client for the REST requests. If set to nil (default),
@@ -43,7 +43,7 @@ func (r Reference) WithHttpClient(c *http.Client) Reference {
 // See https://firebase.google.com/docs/reference/rest/database/ "API Usage".
 func (r Reference) jsonUrl() string {
 	u := r.url
-	u.Path = path.Clean(u.Path)
+	u.Path = pathLib.Clean(u.Path)
 	if u.Path == "." {
 		u.Path = "/.json"
 	} else {

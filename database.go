@@ -35,13 +35,13 @@
 package firebasedb
 
 import (
-	"net/url"
+	urlLib "net/url"
 )
 
 // NewFirebaseDB opens a new Firebase Database connection using the URL u and the
 // authentication auth. Currently, only the database secret can be used as auth.
-func NewFirebaseDB(u, auth string) (Reference, error) {
-	parsedUrl, err := url.Parse(u)
+func NewFirebaseDB(url, auth string) (Reference, error) {
+	parsedUrl, err := urlLib.Parse(url)
 	if err != nil {
 		return Reference{}, err
 	} else {

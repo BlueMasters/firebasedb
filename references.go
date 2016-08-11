@@ -17,8 +17,8 @@ package firebasedb
 import (
 	"errors"
 	"fmt"
-	"net/url"
-	"path"
+	urlLib "net/url"
+	pathLib "path"
 	"strconv"
 	"strings"
 	"net/http"
@@ -27,7 +27,7 @@ import (
 // Reference represents a specific location in the database and can be used
 // for reading or writing data to that database location.
 type Reference struct {
-	url url.URL
+	url urlLib.URL
 	err error
 	client *http.Client
 	skipKeepAlive bool
@@ -37,20 +37,19 @@ type Reference struct {
 // SkipKeepAlive sets the skipKeepAlive flag for the Reference. When the references is
 // used in the Subscribe() method, the skipKeepAlive flag controls the automatic handling
 // if keep-alive messages.
-func (r Reference) SkipKeepAlive(x bool) Reference {
+func (r Reference) SkipKeepAlive(value bool) Reference {
 	result := r
-	r.skipKeepAlive = x
+	r.skipKeepAlive = value
 	return result
 }
 
 // Retry sets the retry flag for the Reference. When a references has the retry flag set,
 // then the library will retry the requests in case of failures.
-func (r Reference) Retry(x bool) Reference {
+func (r Reference) Retry(value bool) Reference {
 	result := r
-	r.retry = x
+	r.retry = value
 	return result
 }
-
 
 // Error returns the error from a reference. Note that an error is set as soon as
 // something wrong occurs with reference operations and is never reset.
@@ -111,9 +110,9 @@ func (r Reference) withQuotedParam(key string, value interface{}) Reference {
 // See https://firebase.google.com/docs/reference/js/firebase.database.Reference#ref
 // or https://firebase.google.com/docs/reference/js/firebase.database.Database#ref
 // for more details.
-func (r Reference) Ref(p string) Reference {
+func (r Reference) Ref(path string) Reference {
 	result := r
-	result.url.Path = path.Clean(path.Join("/", p))
+	result.url.Path = pathLib.Clean(pathLib.Join("/", path))
 	return result
 }
 
@@ -122,11 +121,11 @@ func (r Reference) Ref(p string) Reference {
 //
 // See https://firebase.google.com/docs/reference/js/firebase.database.Database#refFromURL
 // for more details.
-func (r Reference) RefFromUrl(u url.URL) Reference {
-	if r.url.Host != u.Host {
+func (r Reference) RefFromUrl(url urlLib.URL) Reference {
+	if r.url.Host != url.Host {
 		return r.withError(errors.New("The URL has not the same host as the current database"))
 	} else {
-		return r.Ref(u.Path)
+		return r.Ref(url.Path)
 	}
 }
 
@@ -189,7 +188,7 @@ func (r Reference) Export() Reference {
 // See https://firebase.google.com/docs/reference/js/firebase.database.Reference#key
 // for more detail.
 func (r Reference) Key() string {
-	p := path.Base(path.Clean(r.url.Path))
+	p := pathLib.Base(pathLib.Clean(r.url.Path))
 	if p == "." || p == "/" {
 		return ""
 	} else {
@@ -203,7 +202,7 @@ func (r Reference) Key() string {
 // for more details.
 func (r Reference) Parent() Reference {
 	result := r
-	result.url.Path = path.Clean(path.Join(result.url.Path, ".."))
+	result.url.Path = pathLib.Clean(pathLib.Join(result.url.Path, ".."))
 	return result
 }
 
@@ -221,9 +220,9 @@ func (r Reference) Root() Reference {
 //
 // See https://firebase.google.com/docs/reference/js/firebase.database.Reference#child
 // for more details.
-func (r Reference) Child(p string) Reference {
+func (r Reference) Child(path string) Reference {
 	result := r
-	result.url.Path = path.Clean(path.Join(result.url.Path, p))
+	result.url.Path = pathLib.Clean(pathLib.Join(result.url.Path, path))
 	return result
 }
 
