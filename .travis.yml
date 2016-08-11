@@ -19,7 +19,7 @@ install:
   - go get github.com/stretchr/testify/assert
   - go build
 
-scrip:
+script:
   - go get -d -t
   - go vet ./...
   - go test -v ./...

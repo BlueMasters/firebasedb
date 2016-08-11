@@ -98,7 +98,7 @@ func TestStreamXXL(t *testing.T) {
 			}
 		case <- finished:
 			break outer
-		case <- time.After(5 * time.Second):
+		case <- time.After(2 * time.Second):
 			assert.Fail(t, "timeout!")
 			break outer
 		}
