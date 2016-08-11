@@ -48,7 +48,7 @@ func uuid() string {
 }
 
 func TestRefOperators(t *testing.T) {
-	db, err := NewFirebaseDB(dinoFactsUrl, "")
+	db, err := NewFirebaseDB(dinoFactsUrl)
 	assert.NoError(t, err)
 	dino := db.Ref("/dinosaurs")
 	assert.Equal(t, db.Key(), "")
@@ -61,7 +61,7 @@ func TestRefOperators(t *testing.T) {
 }
 
 func TestArguments(t *testing.T) {
-	db, err := NewFirebaseDB(dinoFactsUrl, "")
+	db, err := NewFirebaseDB(dinoFactsUrl)
 	assert.NoError(t, err)
 
 	pretty := db.Pretty()
@@ -83,7 +83,7 @@ func TestArguments(t *testing.T) {
 }
 
 func TestDinoShallow(t *testing.T) {
-	db, err := NewFirebaseDB(dinoFactsUrl, "")
+	db, err := NewFirebaseDB(dinoFactsUrl)
 	assert.NoError(t, err)
 	generic := make(map[string]interface{})
 	err = db.Ref("/").Shallow().Value(&generic)
@@ -96,7 +96,7 @@ func TestDinoShallow(t *testing.T) {
 }
 
 func TestRefFromUrl(t *testing.T) {
-	db, err := NewFirebaseDB(dinoFactsUrl, "")
+	db, err := NewFirebaseDB(dinoFactsUrl)
 	assert.NoError(t, err)
 	generic := make(map[string]interface{})
 	u, err := url.Parse("https://dinosaur-facts.firebaseio.com/dinosaurs")
@@ -114,7 +114,7 @@ func TestRefFromUrl(t *testing.T) {
 }
 
 func TestDotUrl(t *testing.T) {
-	db, err := NewFirebaseDB(dinoFactsUrl, "")
+	db, err := NewFirebaseDB(dinoFactsUrl)
 	assert.NoError(t, err)
 	generic := make(map[string]interface{})
 	r := db.Ref("/")
@@ -127,7 +127,7 @@ func TestDotUrl(t *testing.T) {
 }
 
 func TestDino(t *testing.T) {
-	db, err := NewFirebaseDB(dinoFactsUrl, "")
+	db, err := NewFirebaseDB(dinoFactsUrl)
 	assert.NoError(t, err)
 	var dinos = dinosaurs{}
 	err = db.Ref("/dinosaurs").Value(&dinos)
@@ -144,7 +144,7 @@ func TestDino(t *testing.T) {
 }
 
 func TestQueries(t *testing.T) {
-	db, err := NewFirebaseDB(dinoFactsUrl, "")
+	db, err := NewFirebaseDB(dinoFactsUrl)
 	assert.NoError(t, err)
 	var dinos = dinosaurs{}
 	err = db.Ref("/dinosaurs").OrderByChild("height").StartAt(3).EndAt(5).Value(&dinos)
@@ -183,12 +183,12 @@ func TestQueries(t *testing.T) {
 }
 
 func TestBadUrl(t *testing.T) {
-	_, err := NewFirebaseDB(":", "")
+	_, err := NewFirebaseDB(":")
 	assert.Error(t, err)
 }
 
 func TestSet(t *testing.T) {
-	db, err := NewFirebaseDB(testingDbUrl, testingDbSecret)
+	db, err := NewFirebaseDB(testingDbUrl)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -200,8 +200,8 @@ func TestSet(t *testing.T) {
 		Name: "Pikachu",
 		CP:   365,
 	}
-	root := db.Ref(uuid())
-	err = root.Child("pikachu").Set(&pika, nil)
+	root := db.Auth(testingDbSecret).Ref(uuid())
+	err = root.Child("pikachu").Set(&pika)
 	assert.NoError(t, err)
 
 	p2 := pokemon{}
@@ -214,7 +214,7 @@ func TestSet(t *testing.T) {
 }
 
 func TestPatch(t *testing.T) {
-	db, err := NewFirebaseDB(testingDbUrl, testingDbSecret)
+	db, err := NewFirebaseDB(testingDbUrl)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -226,8 +226,8 @@ func TestPatch(t *testing.T) {
 		Name: "Pikachu",
 		CP:   365,
 	}
-	root := db.Ref(uuid())
-	err = root.Child("pikachu").Set(&pika, nil)
+	root := db.Auth(testingDbSecret).Ref(uuid())
+	err = root.Child("pikachu").Set(&pika)
 	assert.NoError(t, err)
 
 	p2 := pokemon{}
@@ -236,7 +236,7 @@ func TestPatch(t *testing.T) {
 	assert.Equal(t, pika.CP, p2.CP)
 
 	change := map[string]interface{}{"combat_point": 370}
-	err = root.Child("pikachu").Update(&change, nil)
+	err = root.Child("pikachu").Update(&change)
 	assert.NoError(t, err)
 
 	p2 = pokemon{}
@@ -249,7 +249,7 @@ func TestPatch(t *testing.T) {
 }
 
 func TestPush(t *testing.T) {
-	db, err := NewFirebaseDB(testingDbUrl, testingDbSecret)
+	db, err := NewFirebaseDB(testingDbUrl)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -261,7 +261,7 @@ func TestPush(t *testing.T) {
 		Name: "Pikachu",
 		CP:   365,
 	}
-	root := db.Ref(uuid())
+	root := db.Auth(testingDbSecret).Ref(uuid())
 
 	_, err = root.Child("pokemons").Push(&pika)
 	assert.NoError(t, err)

@@ -42,10 +42,10 @@ func startReceiver(t *testing.T, r Reference, wg *sync.WaitGroup, n int) {
 func startSender(t *testing.T, r Reference, wg *sync.WaitGroup, n int, nobjs int) {
 	for i := 0; i < nobjs; i++ {
 		objectId := fmt.Sprintf("XXL-%06d-%06d", n, i)
-		err := r.Child("live").Set(&objectId, nil)
+		err := r.Child("live").Set(&objectId)
 		assert.NoError(t, err)
 		data := map[string]string{"seen": "yes"}
-		err = r.Child("historical").Child(objectId).Set(&data, nil)
+		err = r.Child("historical").Child(objectId).Set(&data)
 		assert.NoError(t, err)
 	}
 	wg.Done()
@@ -59,9 +59,9 @@ func TestStreamXXL(t *testing.T) {
 	result = make(chan string)
 
 	allSubscriptions = make([]*Subscription, numberOfReceivers)
-	db, err := NewFirebaseDB(testingDbUrl, testingDbSecret)
+	db, err := NewFirebaseDB(testingDbUrl)
 	assert.NoError(t, err)
-	root := db.Ref(uuid())
+	root := db.Auth(testingDbSecret).Ref(uuid())
 
 	ready := &sync.WaitGroup{}
 	ready.Add(numberOfReceivers)

@@ -88,7 +88,32 @@ func (r Reference) Value(value interface{}) (err error) {
 //
 // See https://firebase.google.com/docs/reference/js/firebase.database.Reference#set
 // for more details.
-func (r Reference) Set(value interface{}, result interface{}) (err error) {
+func (r Reference) Set(value interface{}) (err error) {
+	b, err := jsonReader(value)
+	if err != nil {
+		return err
+	}
+	req, err := http.NewRequest("PUT", r.jsonUrl(), b)
+	if err != nil {
+		return err
+	}
+	response, err := r.httpClient().Do(req)
+	if err != nil {
+		return err
+	}
+	defer response.Body.Close()
+	if response.StatusCode < 200 || response.StatusCode >=300 {
+		return errors.New(response.Status)
+	}
+	return nil
+}
+
+// SetWithResult write data to the database location given by the Reference r.
+// This will overwrite any data at this location and all child locations.
+//
+// See https://firebase.google.com/docs/reference/js/firebase.database.Reference#set
+// for more details.
+func (r Reference) SetWithResult(value interface{}, result interface{}) (err error) {
 	b, err := jsonReader(value)
 	if err != nil {
 		return err
@@ -123,7 +148,27 @@ func (r Reference) Set(value interface{}, result interface{}) (err error) {
 //
 // See https://firebase.google.com/docs/reference/js/firebase.database.Reference#update
 // for more details.
-func (r Reference) Update(value interface{}, result interface{}) (err error) {
+func (r Reference) Update(value interface{}) (err error) {
+	b, err := jsonReader(value)
+	if err != nil {
+		return err
+	}
+	req, err := http.NewRequest("PATCH", r.jsonUrl(), b)
+	if err != nil {
+		return err
+	}
+	response, err := r.httpClient().Do(req)
+	if err != nil {
+		return err
+	}
+	defer response.Body.Close()
+	if response.StatusCode < 200 || response.StatusCode >=300 {
+		return errors.New(response.Status)
+	}
+	return nil
+}
+
+func (r Reference) UpdateWithResult(value interface{}, result interface{}) (err error) {
 	b, err := jsonReader(value)
 	if err != nil {
 		return err

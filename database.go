@@ -38,19 +38,16 @@ import (
 	urlLib "net/url"
 )
 
-// NewFirebaseDB opens a new Firebase Database connection using the URL u and the
+// NewFirebaseDB opens a new Firebase Database connection using the url and the
 // authentication auth. Currently, only the database secret can be used as auth.
-func NewFirebaseDB(url, auth string) (Reference, error) {
+// For anonymous connection, set auth to an empty string ("").
+func NewFirebaseDB(url string) (Reference, error) {
 	parsedUrl, err := urlLib.Parse(url)
 	if err != nil {
 		return Reference{}, err
-	} else {
-		ref := Reference{
-			url: *parsedUrl,
-		}
-		if auth != "" {
-			ref = ref.withParam("auth", auth)
-		}
-		return ref, nil
 	}
+	ref := Reference{
+		url: *parsedUrl,
+	}
+	return ref, nil
 }

@@ -21,7 +21,7 @@ import (
 )
 
 func TestStream(t *testing.T) {
-	db, err := NewFirebaseDB(testingDbUrl, testingDbSecret)
+	db, err := NewFirebaseDB(testingDbUrl)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -30,12 +30,12 @@ func TestStream(t *testing.T) {
 		CP   int    `json:"combat_point"`
 	}
 
-	root := db.Ref(uuid())
+	root := db.Auth(testingDbSecret).Ref(uuid())
 	pika := pokemon{
 		Name: "Pikachu",
 		CP:   365,
 	}
-	err = root.Child("pikachu").Set(&pika, nil)
+	err = root.Child("pikachu").Set(&pika)
 	assert.NoError(t, err)
 
 	s, err := root.SkipKeepAlive(true).Subscribe()
