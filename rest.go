@@ -39,6 +39,14 @@ func (r Reference) WithHttpClient(c *http.Client) Reference {
 	return result
 }
 
+func (r Reference) addAuth() Reference {
+	if r.auth != nil {
+		return r.withParam("auth", r.auth.String())
+	} else {
+        return r
+	}
+}
+
 // jsonUrl is an internal function to build the URL for the REST API
 // See https://firebase.google.com/docs/reference/rest/database/ "API Usage".
 func (r Reference) jsonUrl() string {
@@ -67,7 +75,7 @@ func jsonReader(value interface{}) (io.Reader, error) {
 // Value reads from the database and store the content in value. It gives an error
 // if it the request fails or if it can't decode the returned payload.
 func (r Reference) Value(value interface{}) (err error) {
-	req, err := http.NewRequest("GET", r.jsonUrl(), nil)
+	req, err := http.NewRequest("GET", r.addAuth().jsonUrl(), nil)
 	if err != nil {
 		return err
 	}
@@ -93,7 +101,7 @@ func (r Reference) Set(value interface{}) (err error) {
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequest("PUT", r.jsonUrl(), b)
+	req, err := http.NewRequest("PUT", r.addAuth().jsonUrl(), b)
 	if err != nil {
 		return err
 	}
@@ -118,7 +126,7 @@ func (r Reference) SetWithResult(value interface{}, result interface{}) (err err
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequest("PUT", r.jsonUrl(), b)
+	req, err := http.NewRequest("PUT", r.addAuth().jsonUrl(), b)
 	if err != nil {
 		return err
 	}
@@ -153,7 +161,7 @@ func (r Reference) Update(value interface{}) (err error) {
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequest("PATCH", r.jsonUrl(), b)
+	req, err := http.NewRequest("PATCH", r.addAuth().jsonUrl(), b)
 	if err != nil {
 		return err
 	}
@@ -173,7 +181,7 @@ func (r Reference) UpdateWithResult(value interface{}, result interface{}) (err 
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequest("PATCH", r.jsonUrl(), b)
+	req, err := http.NewRequest("PATCH", r.addAuth().jsonUrl(), b)
 	if err != nil {
 		return err
 	}
@@ -203,7 +211,7 @@ func (r Reference) Push(value interface{}) (name string, err error) {
 	if err != nil {
 		return "", err
 	}
-	req, err := http.NewRequest("POST", r.jsonUrl(), b)
+	req, err := http.NewRequest("POST", r.addAuth().jsonUrl(), b)
 	if err != nil {
 		return "", err
 	}
@@ -234,7 +242,7 @@ func (r Reference) Push(value interface{}) (name string, err error) {
 // See https://firebase.google.com/docs/reference/js/firebase.database.Reference#remove
 // for more details.
 func (r Reference) Remove() (err error) {
-	req, err := http.NewRequest("DELETE", r.jsonUrl(), nil)
+	req, err := http.NewRequest("DELETE", r.addAuth().jsonUrl(), nil)
 	if err != nil {
 		return err
 	}

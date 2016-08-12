@@ -26,7 +26,7 @@ var allSubscriptions []*Subscription
 var result chan string
 
 func startReceiver(t *testing.T, r Reference, wg *sync.WaitGroup, n int) {
-	s, err := r.Child("live").SkipKeepAlive(true).Subscribe()
+	s, err := r.Child("live").Subscribe()
 	allSubscriptions[n] = s
 	assert.NoError(t, err)
 	wg.Done()
@@ -61,7 +61,7 @@ func TestStreamXXL(t *testing.T) {
 	allSubscriptions = make([]*Subscription, numberOfReceivers)
 	db, err := NewFirebaseDB(testingDbUrl)
 	assert.NoError(t, err)
-	root := db.Auth(testingDbSecret).Ref(uuid())
+	root := db.Auth(Secret{Token: testingDbSecret}).Ref(uuid())
 
 	ready := &sync.WaitGroup{}
 	ready.Add(numberOfReceivers)

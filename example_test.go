@@ -102,14 +102,14 @@ func ExampleReference_SkipKeepAlive() {
 	db, _ := NewFirebaseDB(dinoFactsUrl)
 
 	// Get an events subscription that filters out keep-alive requests
-	s0, err := db.Ref("dinosaurs").SkipKeepAlive(true).Subscribe()
+	s0, err := db.Ref("dinosaurs").Subscribe()
 	if err != nil {
 		log.Fatal(err)
 	}
 	s0.Close()
 
 	// Get an events subscription that includes keep-alive requests
-	s1, err := db.Ref("dinosaurs").SkipKeepAlive(false).Subscribe()
+	s1, err := db.Ref("dinosaurs").Subscribe()
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -59,7 +59,7 @@ func (e Event) Value(v interface{}) (path string, err error) {
 // are returned by the Subscribe method.
 type Subscription struct {
     reader    io.ReadCloser   // from the HTTP request's body
-    reference Reference       // copy of the reference
+    reference *Reference       // copy of the reference
     events    chan Event      // sends events to the user
     closing   chan chan error // for Close
 }
@@ -67,7 +67,7 @@ type Subscription struct {
 // Subscribe returns a subscription on the reference. The returned subscription
 // is used to access the streamed events.
 func (r Reference) Subscribe() (*Subscription, error) {
-	req, err := http.NewRequest("GET", r.jsonUrl(), nil)
+	req, err := http.NewRequest("GET", r.addAuth().jsonUrl(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func (r Reference) Subscribe() (*Subscription, error) {
 	}
 	s := &Subscription{
 		reader:        response.Body,
-		reference:     r,
+		reference:     &r,
 		events:        make(chan Event),      // for Events
 		closing:       make(chan chan error), // for Close
 	}
@@ -131,7 +131,28 @@ func (s *Subscription) loop() {
 						}
 					} else {
 						eventType := strings.Trim(strings.TrimPrefix(payload[0], "event:"), " \r\n")
-						if !(s.reference.skipKeepAlive && eventType == "keep-alive") {
+						switch eventType {
+						case "keep-alive":
+							if s.reference.passKeepAlive {
+								fetchEvent <- Event{
+									Type: eventType,
+									data: strings.Trim(strings.TrimPrefix(payload[1], "data:"), " \r\n"),
+									Err:  nil,
+								}
+							}
+						case "auth_revoked":
+							var err error = nil
+							if s.reference.auth != nil {
+								if err = s.reference.auth.Renew(); err == nil {
+									break
+								}
+							}
+							fetchEvent <- Event{
+								Type: eventType,
+								data: strings.Trim(strings.TrimPrefix(payload[1], "data:"), " \r\n"),
+								Err:  err,
+							}
+						default: // send event
 							fetchEvent <- Event{
 								Type: eventType,
 								data: strings.Trim(strings.TrimPrefix(payload[1], "data:"), " \r\n"),

@@ -200,7 +200,7 @@ func TestSet(t *testing.T) {
 		Name: "Pikachu",
 		CP:   365,
 	}
-	root := db.Auth(testingDbSecret).Ref(uuid())
+	root := db.Auth(Secret{Token: testingDbSecret}).Ref(uuid())
 	err = root.Child("pikachu").Set(&pika)
 	assert.NoError(t, err)
 
@@ -226,7 +226,7 @@ func TestPatch(t *testing.T) {
 		Name: "Pikachu",
 		CP:   365,
 	}
-	root := db.Auth(testingDbSecret).Ref(uuid())
+	root := db.Auth(Secret{Token: testingDbSecret}).Ref(uuid())
 	err = root.Child("pikachu").Set(&pika)
 	assert.NoError(t, err)
 
@@ -261,7 +261,7 @@ func TestPush(t *testing.T) {
 		Name: "Pikachu",
 		CP:   365,
 	}
-	root := db.Auth(testingDbSecret).Ref(uuid())
+	root := db.Auth(Secret{Token: testingDbSecret}).Ref(uuid())
 
 	_, err = root.Child("pokemons").Push(&pika)
 	assert.NoError(t, err)

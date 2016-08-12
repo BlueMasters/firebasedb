@@ -27,19 +27,20 @@ import (
 // Reference represents a specific location in the database and can be used
 // for reading or writing data to that database location.
 type Reference struct {
-	url urlLib.URL
-	err error
-	client *http.Client
-	skipKeepAlive bool
-	retry bool
+	url           urlLib.URL
+	err           error
+	client        *http.Client
+	auth          Authenticator
+	passKeepAlive bool
+	retry         bool
 }
 
 // SkipKeepAlive sets the skipKeepAlive flag for the Reference. When the references is
 // used in the Subscribe() method, the skipKeepAlive flag controls the automatic handling
 // if keep-alive messages.
-func (r Reference) SkipKeepAlive(value bool) Reference {
+func (r Reference) PassKeepAlive(value bool) Reference {
 	result := r
-	r.skipKeepAlive = value
+	r.passKeepAlive = value
 	return result
 }
 
@@ -134,14 +135,17 @@ func (r Reference) Rules() Reference {
 	return r.Ref(".settings/rules")
 }
 
+// TODO REVISE!
 // Auth authenticates the request to allow access to data protected by Firebase Realtime Database Rules.
 // The argument can either be your Firebase app's secret or an authentication token
 //
 // See https://firebase.google.com/docs/reference/rest/database/#section-param-auth
 // and https://firebase.google.com/docs/reference/rest/database/user-auth
 // for more details.
-func (r Reference) Auth(auth string) Reference {
-	return r.withParam("auth", auth)
+func (r Reference) Auth(auth Authenticator) Reference {
+	result := r
+	result.auth = auth
+	return result
 }
 
 // Shallow is an advanced feature, designed to help you work with large datasets without

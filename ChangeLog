@@ -1,0 +1,11 @@
+2016-08-12  Jacques Supcik <jacques@supcik.net>
+
+    New authentication mechanism. The library now uses an "Authentifier interface" instead of a simple string.
+    This allows for automatic re-authentication when a subscription is active (auth_revoke event type).
+
+    For static database secret, just change your code in the following way:
+    before:	ref.Auth("DBSECRET")
+    after:	ref.Auth(Secret{Token: "DBSECRET"})
+
+    Another change is that we reverse the skipKeepAlive to passKeepAlive. So now, the default is to *not*
+    pass the keep-alive events.

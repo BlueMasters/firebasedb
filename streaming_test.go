@@ -29,8 +29,8 @@ func TestStream(t *testing.T) {
 		Name string `json:"name"`
 		CP   int    `json:"combat_point"`
 	}
+	root := db.Auth(Secret{Token: testingDbSecret}).Ref(uuid())
 
-	root := db.Auth(testingDbSecret).Ref(uuid())
 	pika := pokemon{
 		Name: "Pikachu",
 		CP:   365,
@@ -38,7 +38,7 @@ func TestStream(t *testing.T) {
 	err = root.Child("pikachu").Set(&pika)
 	assert.NoError(t, err)
 
-	s, err := root.SkipKeepAlive(true).Subscribe()
+	s, err := root.Subscribe()
 	assert.NoError(t, err)
 
 	select {
