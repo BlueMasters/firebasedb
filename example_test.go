@@ -97,19 +97,19 @@ func ExampleReference_String() {
 	// Output: https://dinosaur-facts.firebaseio.com/dinosaurs/stegosaurus
 }
 
-func ExampleReference_SkipKeepAlive() {
+func ExampleReference_PassKeepAlive() {
 	const dinoFactsUrl = "https://dinosaur-facts.firebaseio.com/"
 	db, _ := NewFirebaseDB(dinoFactsUrl)
 
-	// Get an events subscription that filters out keep-alive requests
-	s0, err := db.Ref("dinosaurs").Subscribe()
+	// Get an events subscription that filters out keep-alive events (default)
+	s0, err := db.Ref("dinosaurs").PassKeepAlive(false).Subscribe()
 	if err != nil {
 		log.Fatal(err)
 	}
 	s0.Close()
 
-	// Get an events subscription that includes keep-alive requests
-	s1, err := db.Ref("dinosaurs").Subscribe()
+	// Get an events subscription that includes keep-alive events
+	s1, err := db.Ref("dinosaurs").PassKeepAlive(true).Subscribe()
 	if err != nil {
 		log.Fatal(err)
 	}
