@@ -25,6 +25,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"time"
 )
 
 // Event is the type used to represent streaming events. The type of the event
@@ -58,10 +59,11 @@ func (e Event) Value(v interface{}) (path string, err error) {
 // Subscription is the interface for event subscriptions. Subscriptions
 // are returned by the Subscribe method.
 type Subscription struct {
-    reader    io.ReadCloser   // from the HTTP request's body
-    reference *Reference       // copy of the reference
-    events    chan Event      // sends events to the user
-    closing   chan chan error // for Close
+	reader        io.ReadCloser   // from the HTTP request's body
+	reference     *Reference      // copy of the reference
+	events        chan Event      // sends events to the user
+	closing       chan chan error // for Close
+	LastKeepAlive time.Time
 }
 
 // Subscribe returns a subscription on the reference. The returned subscription
@@ -81,10 +83,10 @@ func (r Reference) Subscribe() (*Subscription, error) {
 		return nil, errors.New(response.Status)
 	}
 	s := &Subscription{
-		reader:        response.Body,
-		reference:     &r,
-		events:        make(chan Event),      // for Events
-		closing:       make(chan chan error), // for Close
+		reader:    response.Body,
+		reference: &r,
+		events:    make(chan Event),      // for Events
+		closing:   make(chan chan error), // for Close
 	}
 	go s.loop()
 	return s, nil
@@ -133,6 +135,7 @@ func (s *Subscription) loop() {
 						eventType := strings.Trim(strings.TrimPrefix(payload[0], "event:"), " \r\n")
 						switch eventType {
 						case "keep-alive":
+							s.LastKeepAlive = time.Now()
 							if s.reference.passKeepAlive {
 								fetchEvent <- Event{
 									Type: eventType,

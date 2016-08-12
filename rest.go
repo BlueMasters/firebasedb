@@ -39,6 +39,7 @@ func (r Reference) WithHttpClient(c *http.Client) Reference {
 	return result
 }
 
+// addAuth returns a new reference with authentication information (if available).
 func (r Reference) addAuth() Reference {
 	if r.auth != nil {
 		return r.withParam("auth", r.auth.String())
@@ -116,11 +117,8 @@ func (r Reference) Set(value interface{}) (err error) {
 	return nil
 }
 
-// SetWithResult write data to the database location given by the Reference r.
-// This will overwrite any data at this location and all child locations.
-//
-// See https://firebase.google.com/docs/reference/js/firebase.database.Reference#set
-// for more details.
+// SetWithResult does the same as the Set function and, additionally, stores the
+// resulting node in result.
 func (r Reference) SetWithResult(value interface{}, result interface{}) (err error) {
 	b, err := jsonReader(value)
 	if err != nil {
@@ -176,6 +174,8 @@ func (r Reference) Update(value interface{}) (err error) {
 	return nil
 }
 
+// UpdateWithResult does the same as the Update function and, additionally, stores the
+// updated node in result.
 func (r Reference) UpdateWithResult(value interface{}, result interface{}) (err error) {
 	b, err := jsonReader(value)
 	if err != nil {
@@ -193,12 +193,8 @@ func (r Reference) UpdateWithResult(value interface{}, result interface{}) (err 
 	if response.StatusCode < 200 || response.StatusCode >=300 {
 		return errors.New(response.Status)
 	}
-	if result != nil {
-		d := json.NewDecoder(response.Body)
-		return d.Decode(result)
-	} else {
-		return nil
-	}
+	d := json.NewDecoder(response.Body)
+	return d.Decode(result)
 }
 
 // Push generates a new child location using a unique key and returns this key

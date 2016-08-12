@@ -35,8 +35,8 @@ type Reference struct {
 	retry         bool
 }
 
-// SkipKeepAlive sets the skipKeepAlive flag for the Reference. When the references is
-// used in the Subscribe() method, the skipKeepAlive flag controls the automatic handling
+// PassKeepAlive sets the passKeepAlive flag of the Reference. When the references is
+// used in the Subscribe() method, the passKeepAlive flag controls the automatic handling
 // if keep-alive messages.
 func (r Reference) PassKeepAlive(value bool) Reference {
 	result := r
@@ -135,9 +135,9 @@ func (r Reference) Rules() Reference {
 	return r.Ref(".settings/rules")
 }
 
-// TODO REVISE!
 // Auth authenticates the request to allow access to data protected by Firebase Realtime Database Rules.
-// The argument can either be your Firebase app's secret or an authentication token
+// The argument is an object that implements the Authenticator interface. The String() method can either
+// returns a Firebase app's secret or an authentication token
 //
 // See https://firebase.google.com/docs/reference/rest/database/#section-param-auth
 // and https://firebase.google.com/docs/reference/rest/database/user-auth
