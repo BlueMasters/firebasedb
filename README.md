@@ -6,6 +6,7 @@ The API is as close as possible to the official JavaScript API.
 
 [![GoDoc](https://godoc.org/github.com/BlueMasters/firebasedb?status.svg)](https://godoc.org/github.com/BlueMasters/firebasedb)
 [![Travis](https://img.shields.io/travis/BlueMasters/firebasedb.svg)](https://travis-ci.org/BlueMasters/firebasedb)
+[![Coveralls](https://img.shields.io/coveralls/BlueMasters/firebasedb.svg)](https://coveralls.io/github/BlueMasters/firebasedb)
 [![Made in Switzerland](https://img.shields.io/badge/Made%20with%20♥%20in-Fribourg%20%2F%20Switzerland-blue.svg)](http://fribourg.ch/fr/)
 
 ## Credits
