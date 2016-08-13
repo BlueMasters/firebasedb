@@ -66,9 +66,7 @@ type Subscription struct {
 	LastKeepAlive time.Time
 }
 
-// Subscribe returns a subscription on the reference. The returned subscription
-// is used to access the streamed events.
-func (r Reference) Subscribe() (*Subscription, error) {
+func (r Reference) openStream() (io.ReadCloser, error){
 	req, err := http.NewRequest("GET", r.addAuth().jsonUrl(), nil)
 	if err != nil {
 		return nil, err
@@ -82,8 +80,18 @@ func (r Reference) Subscribe() (*Subscription, error) {
 		response.Body.Close()
 		return nil, errors.New(response.Status)
 	}
+	return response.Body, nil
+}
+
+// Subscribe returns a subscription on the reference. The returned subscription
+// is used to access the streamed events.
+func (r Reference) Subscribe() (*Subscription, error) {
+	reader, err := r.openStream()
+	if err != nil {
+		return nil, err
+	}
 	s := &Subscription{
-		reader:    response.Body,
+		reader:    reader,
 		reference: &r,
 		events:    make(chan Event),      // for Events
 		closing:   make(chan chan error), // for Close
@@ -133,38 +141,33 @@ func (s *Subscription) loop() {
 						}
 					} else {
 						eventType := strings.Trim(strings.TrimPrefix(payload[0], "event:"), " \r\n")
+						eventData := strings.Trim(strings.TrimPrefix(payload[1], "data:"), " \r\n")
 						switch eventType {
 						case "keep-alive":
 							s.LastKeepAlive = time.Now()
 							if s.reference.passKeepAlive {
-								fetchEvent <- Event{
-									Type: eventType,
-									data: strings.Trim(strings.TrimPrefix(payload[1], "data:"), " \r\n"),
-									Err:  nil,
-								}
+								fetchEvent <- Event{Type: eventType, data: eventData, Err: nil}
 							}
 						case "auth_revoked":
 							var err error = nil
 							if s.reference.auth != nil {
 								if err = s.reference.auth.Renew(); err == nil {
-									break
+									s.reader.Close()
+									s.reader, err = s.reference.openStream()
+									if err == nil {
+										r = bufio.NewReader(s.reader)
+										break // everything is OK, no need to send the event further.
+									}
 								}
 							}
-							fetchEvent <- Event{
-								Type: eventType,
-								data: strings.Trim(strings.TrimPrefix(payload[1], "data:"), " \r\n"),
-								Err:  err,
-							}
-						default: // send event
-							fetchEvent <- Event{
-								Type: eventType,
-								data: strings.Trim(strings.TrimPrefix(payload[1], "data:"), " \r\n"),
-								Err:  nil,
-							}
+							// send the event with the proper error code.
+							fetchEvent <- Event{Type: eventType, data: eventData, Err: err}
+						default: // send "normal" event
+							fetchEvent <- Event{Type: eventType, data: eventData, Err: nil}
 						}
 					}
 				} else {
-					fetchEvent <- Event{Err: errors.New("Bad formated body")}
+					fetchEvent <- Event{Err: errors.New("Badly formated body")}
 				}
 				lineCount = 0
 			} else { // line is not empty
