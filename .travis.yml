@@ -12,7 +12,6 @@ matrix:
 
 before_install:
   - go get github.com/golang/lint/golint
-  - go get github.com/mattn/goveralls
   - go get golang.org/x/tools/cmd/cover
 
 install:
@@ -22,7 +21,7 @@ install:
 script:
   - go get -d -t
   - go vet ./...
-  - go test -v ./...
+  - go test -v -cover ./...
 
 after_script:
   - golint ./...
@@ -35,5 +34,4 @@ env:
   global:
   - secure: hJ2RXbwAYtGbqQOaq+4uVmUROouVfX0LzxgoJdUluh32y3v6aZjULaDR3GaLVEmOl7Fj4oQwKgS0/4hIp84v5qnQzRFkrUkHiYM0CYTPWXj8XMs5Ys7mJcP6dMpZD2SrdN7Uf7nL9EQTfdXo/59N55w5Z+t5v98ZnL3eAhFs04vkRfi1hg3cqwuBZfwJm3eCrowP3oA45NqIR0j3lWl7kQQLHXx12qg96VsxGzsDW0TtXFBDY6wrMh/mTYCHdprdO/ML6DdtlRHJOjOI0vIEHg+MZsFLwcYM0M84cE6nMOkWqr76deSiBRaliUyzLrw9KGqysDYfdEU6N3eoNdcdpi1ayBxoop2C8VbKp2fUEL6kxru0Pk2HIhrIFaTNgY7M6I712oe9XZEEQ56p0/HnkT5cK6iwRLskDJg5VbDZCV7OI/nB7Xbn8HrYpVOIqZTHVbk2PW6rrk8yrIeD4pbDg0cpdRpvsZY/45WzAvP4mGUSn3mn/AxFwp4zWidzUwm3zSuRqgkU+goLgB8Mfg9vVHqWiLSUSWKmXjzIz1ckCp49pYDRNSS2uf4WVz/15r1egUg/KqfldkVMBfLh7X8xfJZiVH0gl1GbDxxBnOzfI+bWRYswiXmmghOTDckTQM0kKrcKONghex5vB8EgwIniNJxLqpaSHP34bWRWUaNBePA=
   - secure: X2DAZauDihUqPx4JFyc54HveSUx08e1UzVKlfg77xnM7NSSUq4VmQl3OSXXs2BLkFoCurvx3aMw1uU34DrZgnkHBtpkwjcYemFycNwuuJX+yazUrafT4fLvQXbbCvmWjPRxWXj1qilFd4hRWOgNfuzZ+7oUQ6p2mW+EgLPj4X3UBc+CwiZmgBt+Nent2z81n3jLZBRrleelzgpRcvfKkv+9q6994dRt/mcksxujo7P/3GZEtpOrfGDkyMJFHXwLCwdpjwj5/u0+IV2D3uhocGJnUqQcVhWdGnba+XoC8mEzXh3mtF9eDlk4aLZKH7W1djF35khqEw+6AmnQy6PqJYJigtp6IV5gxurXHfCGLLwzSI77WmBj9zkxkMr22IMUMgtYG7iNEFrcxog90WE/ydbL8zKYtXH9fguiO+cLTr1Igy1heGgofv7DJid2xmxc486WsWy/1Nr/UuJNtt910TjOPT1nc5IEGltIFcW4z4k5n7Il4Vgh4iy5FCrit41XxRvCXEndYuE5rUSnwU6WTL2Domft7/zdzCP0R8tOSxLOyx9gd/VPyIwb0sZGLk3ZtoKcOLKrHTNKtAoAD8KDtdDde2hugwEjJM8njHvWbkVkx24iZ21teybsLb7IuZH38IpPul47YGpQ6AXgEbvIde1ATi6nUXCeIjd+orR1gTh0=
-  - secure: DU/VoR/STnV2XLCIXme0VXpQlkWQwH86aZQQlE43Db2HuSoiNdShO1/IB5NdV5vegPbdFHkHVyUsemLlC37ahY3nlcPcrcfHkveng93sZTIW+a9NaIFTeB6NYUpdS1Kjek7C276oH2Xmjaqhwu6E7c34JSawWVNl9OVIDictPYUplYvuYOaUvYzglaxRNqcIDrWvKDco5C0NVgkYZlfZEKI8LG+WqPD47Y+k4eyEKaz2ecaXmWE7em7AwGWUtdIAHnVn2VVvXC0tfV3uM65rI4r1aJEN1zoeCeZQBejw8dz5wMBlSqIEz5FGwyYosN335lf1E5vK/8mUuxgCawFzI42NSiw8B1ki3qF7/2tYPJdTWCkoEJDu96fCtT7Y4qrAlPwoUlRivk/PkynvgGyQEkiv4imhQHieo//c9aC1bQ6FDdwej2O9PVkEt19CM7Q/TaSrYXZfwZ8rZNAL+YWu9Eh9ROoelTwIUxKGL7r7VkADkZOc5W7O2YTMt4EMV+4CyPa2YCy5InA9EIOleHEW4t420tB+GGRh3jQb3EA/YGPFl7TUHGL1TcDoUTRpxyUSrBjCvXdYYqKUaY36O3PZ6lsEuG5pg8mqXMtkapDkiy6scXr9WXu8c8TUeOmcmH9KfCPv2G3rlF9yRLMEysNWW+FNz4fULXcn4lzvuiWFuUc=
   - FIREBASE_DB_TESTING_I_UNDERSTAND_THAT_THIS_WILL_DELETE_EXISTING_DATA="I AGREE"
