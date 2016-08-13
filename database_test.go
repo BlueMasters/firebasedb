@@ -20,6 +20,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"net/url"
 	"testing"
+	"net/http"
 )
 
 const dinoFactsUrl = "https://dinosaur-facts.firebaseio.com/"
@@ -226,6 +227,14 @@ func TestPatch(t *testing.T) {
 	err := root.Child("pikachu").Set(&pika)
 	assert.NoError(t, err)
 
+	res := map[string]interface{}{}
+	err = root.Child("pikachu-2").SetWithResult(&pika, &res)
+	assert.NoError(t, err)
+	assert.Contains(t, res, "combat_point")
+	assert.EqualValues(t, 365, res["combat_point"])
+	assert.Contains(t, res, "name")
+
+
 	p2 := pokemon{}
 	err = root.Child("pikachu").Value(&p2)
 	assert.NoError(t, err)
@@ -234,6 +243,13 @@ func TestPatch(t *testing.T) {
 	change := map[string]interface{}{"combat_point": 370}
 	err = root.Child("pikachu").Update(&change)
 	assert.NoError(t, err)
+
+	res = map[string]interface{}{}
+	err = root.Child("pikachu-2").UpdateWithResult(&change, &res)
+	assert.NoError(t, err)
+	assert.Contains(t, res, "combat_point")
+	assert.EqualValues(t, 370, res["combat_point"])
+	assert.NotContains(t, res, "name")
 
 	p2 = pokemon{}
 	err = root.Child("pikachu").Value(&p2)
@@ -275,4 +291,22 @@ func TestPush(t *testing.T) {
 
 	err = root.Remove()
 	assert.NoError(t, err)
+}
+
+func TestCustomClient(t *testing.T) {
+	client := http.Client{}
+	db := NewReference(dinoFactsUrl).WithHttpClient(&client)
+	assert.NoError(t, db.Error)
+	var dinos = dinosaurs{}
+	err := db.Ref("/dinosaurs").Value(&dinos)
+	assert.NoError(t, err)
+	assert.Contains(t, dinos, "pterodactyl")
+	assert.NotContains(t, dinos, "pikachu")
+	assert.EqualValues(t, dinos["pterodactyl"].Appeared, -150000000)
+	assert.EqualValues(t, dinos["pterodactyl"].Order, "pterosauria")
+	var scores = dinoScores{}
+	err = db.Ref("/scores").Value(&scores)
+	assert.NoError(t, err)
+	assert.Contains(t, scores, "pterodactyl")
+	assert.EqualValues(t, scores["pterodactyl"], 93)
 }

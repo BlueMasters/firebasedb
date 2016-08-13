@@ -74,7 +74,7 @@ func NewReference(url string) Reference {
 // if keep-alive messages.
 func (r Reference) PassKeepAlive(value bool) Reference {
 	result := r
-	r.passKeepAlive = value
+	result.passKeepAlive = value
 	return result
 }
 
@@ -82,7 +82,7 @@ func (r Reference) PassKeepAlive(value bool) Reference {
 // then the library will retry the requests in case of failures.
 func (r Reference) Retry(value bool) Reference {
 	result := r
-	r.retry = value
+	result.retry = value
 	return result
 }
 
