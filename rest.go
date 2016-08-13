@@ -29,6 +29,7 @@ import (
 	"io"
 	"net/http"
 	pathLib "path"
+	"fmt"
 )
 
 // WithHttpClient sets a custom HTTP client for the REST requests. If set to nil (default),
@@ -78,18 +79,22 @@ func jsonReader(value interface{}) (io.Reader, error) {
 func (r Reference) Value(value interface{}) (err error) {
 	req, err := http.NewRequest("GET", r.addAuth().jsonUrl(), nil)
 	if err != nil {
-		return err
+		return errors.New(fmt.Sprintf("error while building the request: %v", err))
 	}
 	response, err := r.httpClient().Do(req)
 	if err != nil {
-		return err
+		return errors.New(fmt.Sprintf("error while executing the request: %v", err))
 	}
 	defer response.Body.Close()
 	if response.StatusCode < 200 || response.StatusCode >=300 {
-		return errors.New(response.Status)
+		return errors.New(fmt.Sprintf("error, response is : %v", response.Status))
 	}
 	d := json.NewDecoder(response.Body)
-	return d.Decode(value)
+	err = d.Decode(value)
+	if err != nil {
+		return errors.New(fmt.Sprintf("error decoding the result: %v", err))
+	}
+	return nil
 }
 
 // Set write data to the database location given by the Reference r.
@@ -100,19 +105,19 @@ func (r Reference) Value(value interface{}) (err error) {
 func (r Reference) Set(value interface{}) (err error) {
 	b, err := jsonReader(value)
 	if err != nil {
-		return err
+		return errors.New(fmt.Sprintf("error reading body: %v", err))
 	}
 	req, err := http.NewRequest("PUT", r.addAuth().jsonUrl(), b)
 	if err != nil {
-		return err
+		return errors.New(fmt.Sprintf("error while building the request: %v", err))
 	}
 	response, err := r.httpClient().Do(req)
 	if err != nil {
-		return err
+		return errors.New(fmt.Sprintf("error while executing the request: %v", err))
 	}
 	defer response.Body.Close()
 	if response.StatusCode < 200 || response.StatusCode >=300 {
-		return errors.New(response.Status)
+		return errors.New(fmt.Sprintf("error, response is : %v", response.Status))
 	}
 	return nil
 }
@@ -122,26 +127,26 @@ func (r Reference) Set(value interface{}) (err error) {
 func (r Reference) SetWithResult(value interface{}, result interface{}) (err error) {
 	b, err := jsonReader(value)
 	if err != nil {
-		return err
+		return errors.New(fmt.Sprintf("error reading body: %v", err))
 	}
 	req, err := http.NewRequest("PUT", r.addAuth().jsonUrl(), b)
 	if err != nil {
-		return err
+		return errors.New(fmt.Sprintf("error while building the request: %v", err))
 	}
 	response, err := r.httpClient().Do(req)
 	if err != nil {
-		return err
+		return errors.New(fmt.Sprintf("error while executing the request: %v", err))
 	}
 	defer response.Body.Close()
 	if response.StatusCode < 200 || response.StatusCode >=300 {
-		return errors.New(response.Status)
+		return errors.New(fmt.Sprintf("error, response is : %v", response.Status))
 	}
-	if result != nil {
-		d := json.NewDecoder(response.Body)
-		return d.Decode(result)
-	} else {
-		return nil
+	d := json.NewDecoder(response.Body)
+	err = d.Decode(result)
+	if err != nil {
+		return errors.New(fmt.Sprintf("error decoding the result: %v", err))
 	}
+	return nil
 }
 
 // Update writes multiple values to the database at once. The "value" argument contains multiple
@@ -157,19 +162,19 @@ func (r Reference) SetWithResult(value interface{}, result interface{}) (err err
 func (r Reference) Update(value interface{}) (err error) {
 	b, err := jsonReader(value)
 	if err != nil {
-		return err
+		return errors.New(fmt.Sprintf("error reading body: %v", err))
 	}
 	req, err := http.NewRequest("PATCH", r.addAuth().jsonUrl(), b)
 	if err != nil {
-		return err
+		return errors.New(fmt.Sprintf("error while building the request: %v", err))
 	}
 	response, err := r.httpClient().Do(req)
 	if err != nil {
-		return err
+		return errors.New(fmt.Sprintf("error while executing the request: %v", err))
 	}
 	defer response.Body.Close()
 	if response.StatusCode < 200 || response.StatusCode >=300 {
-		return errors.New(response.Status)
+		return errors.New(fmt.Sprintf("error, response is : %v", response.Status))
 	}
 	return nil
 }
@@ -179,22 +184,26 @@ func (r Reference) Update(value interface{}) (err error) {
 func (r Reference) UpdateWithResult(value interface{}, result interface{}) (err error) {
 	b, err := jsonReader(value)
 	if err != nil {
-		return err
+		return errors.New(fmt.Sprintf("error reading body: %v", err))
 	}
 	req, err := http.NewRequest("PATCH", r.addAuth().jsonUrl(), b)
 	if err != nil {
-		return err
+		return errors.New(fmt.Sprintf("error while building the request: %v", err))
 	}
 	response, err := r.httpClient().Do(req)
 	if err != nil {
-		return err
+		return errors.New(fmt.Sprintf("error while executing the request: %v", err))
 	}
 	defer response.Body.Close()
 	if response.StatusCode < 200 || response.StatusCode >=300 {
-		return errors.New(response.Status)
+		return errors.New(fmt.Sprintf("error, response is : %v", response.Status))
 	}
 	d := json.NewDecoder(response.Body)
-	return d.Decode(result)
+	err = d.Decode(result)
+	if err != nil {
+		return errors.New(fmt.Sprintf("error decoding the result: %v", err))
+	}
+	return nil
 }
 
 // Push generates a new child location using a unique key and returns this key
@@ -205,19 +214,20 @@ func (r Reference) UpdateWithResult(value interface{}, result interface{}) (err 
 func (r Reference) Push(value interface{}) (name string, err error) {
 	b, err := jsonReader(value)
 	if err != nil {
-		return "", err
+		return "", errors.New(fmt.Sprintf("error reading body: %v", err))
 	}
 	req, err := http.NewRequest("POST", r.addAuth().jsonUrl(), b)
 	if err != nil {
-		return "", err
+		return "", errors.New(fmt.Sprintf("error while building the request: %v", err))
 	}
 	response, err := r.httpClient().Do(req)
 	if err != nil {
-		return "", err
+		return "", errors.New(fmt.Sprintf("error while executing the request: %v", err))
+
 	}
 	defer response.Body.Close()
 	if response.StatusCode < 200 || response.StatusCode >=300 {
-		return "", errors.New(response.Status)
+		return "", errors.New(fmt.Sprintf("error, response is : %v", response.Status))
 	}
 	result := map[string]string{}
 	d := json.NewDecoder(response.Body)
@@ -240,15 +250,15 @@ func (r Reference) Push(value interface{}) (name string, err error) {
 func (r Reference) Remove() (err error) {
 	req, err := http.NewRequest("DELETE", r.addAuth().jsonUrl(), nil)
 	if err != nil {
-		return err
+		return errors.New(fmt.Sprintf("error while building the request: %v", err))
 	}
 	response, err := r.httpClient().Do(req)
 	if err != nil {
-		return err
+		return errors.New(fmt.Sprintf("error while executing the request: %v", err))
 	}
 	defer response.Body.Close()
 	if response.StatusCode < 200 || response.StatusCode >=300 {
-		return errors.New(response.Status)
+		return errors.New(fmt.Sprintf("error, response is : %v", response.Status))
 	}
 	return nil
 }

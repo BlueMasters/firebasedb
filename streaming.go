@@ -26,6 +26,7 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"fmt"
 )
 
 // Event is the type used to represent streaming events. The type of the event
@@ -69,16 +70,16 @@ type Subscription struct {
 func (r Reference) openStream() (io.ReadCloser, error){
 	req, err := http.NewRequest("GET", r.addAuth().jsonUrl(), nil)
 	if err != nil {
-		return nil, err
+		return nil, errors.New(fmt.Sprintf("error while building the request: %v", err))
 	}
 	req.Header.Add("Accept", "text/event-stream")
 	response, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, errors.New(fmt.Sprintf("error while executing the request: %v", err))
 	}
 	if response.StatusCode != 200 {
 		response.Body.Close()
-		return nil, errors.New(response.Status)
+		return nil, errors.New(fmt.Sprintf("error, response is : %v", response.Status))
 	}
 	return response.Body, nil
 }
