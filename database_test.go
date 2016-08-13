@@ -48,8 +48,8 @@ func uuid() string {
 }
 
 func TestRefOperators(t *testing.T) {
-	db, err := NewFirebaseDB(dinoFactsUrl)
-	assert.NoError(t, err)
+	db := NewReference(dinoFactsUrl)
+	assert.NoError(t,db.Error)
 	dino := db.Ref("/dinosaurs")
 	assert.Equal(t, db.Key(), "")
 	pterodactyl := dino.Child("pterodactyl")
@@ -61,8 +61,8 @@ func TestRefOperators(t *testing.T) {
 }
 
 func TestArguments(t *testing.T) {
-	db, err := NewFirebaseDB(dinoFactsUrl)
-	assert.NoError(t, err)
+	db := NewReference(dinoFactsUrl)
+	assert.NoError(t, db.Error)
 
 	pretty := db.Pretty()
 	v := pretty.url.Query()
@@ -83,10 +83,10 @@ func TestArguments(t *testing.T) {
 }
 
 func TestDinoShallow(t *testing.T) {
-	db, err := NewFirebaseDB(dinoFactsUrl)
-	assert.NoError(t, err)
+	db := NewReference(dinoFactsUrl)
+	assert.NoError(t, db.Error)
 	generic := make(map[string]interface{})
-	err = db.Ref("/").Shallow().Value(&generic)
+	err := db.Ref("/").Shallow().Value(&generic)
 	assert.NoError(t, err)
 	assert.Contains(t, generic, "dinosaurs")
 	assert.Contains(t, generic, "scores")
@@ -96,13 +96,13 @@ func TestDinoShallow(t *testing.T) {
 }
 
 func TestRefFromUrl(t *testing.T) {
-	db, err := NewFirebaseDB(dinoFactsUrl)
-	assert.NoError(t, err)
+	db := NewReference(dinoFactsUrl)
+	assert.NoError(t, db.Error)
 	generic := make(map[string]interface{})
 	u, err := url.Parse("https://dinosaur-facts.firebaseio.com/dinosaurs")
 	assert.NoError(t, err)
 	r := db.RefFromUrl(*u)
-	assert.NoError(t, r.Error())
+	assert.NoError(t, r.Error)
 	err = r.Shallow().Value(&generic)
 	assert.NoError(t, err)
 	assert.Contains(t, generic, "pterodactyl")
@@ -110,16 +110,16 @@ func TestRefFromUrl(t *testing.T) {
 	u, err = url.Parse("https://not-the-same-host.firebaseio.com/dinosaurs")
 	assert.NoError(t, err)
 	r = db.RefFromUrl(*u)
-	assert.Error(t, r.Error())
+	assert.Error(t, r.Error)
 }
 
 func TestDotUrl(t *testing.T) {
-	db, err := NewFirebaseDB(dinoFactsUrl)
-	assert.NoError(t, err)
+	db := NewReference(dinoFactsUrl)
+	assert.NoError(t, db.Error)
 	generic := make(map[string]interface{})
 	r := db.Ref("/")
 	r.url.Path = "." // force dot path
-	err = r.Shallow().Value(&generic)
+	err := r.Shallow().Value(&generic)
 	assert.NoError(t, err)
 	assert.Contains(t, generic, "dinosaurs")
 	assert.NotContains(t, generic, "fat")
@@ -127,10 +127,10 @@ func TestDotUrl(t *testing.T) {
 }
 
 func TestDino(t *testing.T) {
-	db, err := NewFirebaseDB(dinoFactsUrl)
-	assert.NoError(t, err)
+	db := NewReference(dinoFactsUrl)
+	assert.NoError(t, db.Error)
 	var dinos = dinosaurs{}
-	err = db.Ref("/dinosaurs").Value(&dinos)
+	err := db.Ref("/dinosaurs").Value(&dinos)
 	assert.NoError(t, err)
 	assert.Contains(t, dinos, "pterodactyl")
 	assert.NotContains(t, dinos, "pikachu")
@@ -144,38 +144,38 @@ func TestDino(t *testing.T) {
 }
 
 func TestQueries(t *testing.T) {
-	db, err := NewFirebaseDB(dinoFactsUrl)
-	assert.NoError(t, err)
+	db := NewReference(dinoFactsUrl)
+	assert.NoError(t, db.Error)
 	var dinos = dinosaurs{}
-	err = db.Ref("/dinosaurs").OrderByChild("height").StartAt(3).EndAt(5).Value(&dinos)
+	db.Ref("/dinosaurs").OrderByChild("height").StartAt(3).EndAt(5).Value(&dinos)
 	assert.Contains(t, dinos, "triceratops")
 	assert.Contains(t, dinos, "stegosaurus")
 	assert.NotContains(t, dinos, "lambeosaurus")
 	assert.NotContains(t, dinos, "bruhathkayosaurus")
 
 	dinos = dinosaurs{}
-	err = db.Ref("/dinosaurs").OrderByChild("height").EqualTo(uint(4)).Value(&dinos)
+	db.Ref("/dinosaurs").OrderByChild("height").EqualTo(uint(4)).Value(&dinos)
 	assert.Contains(t, dinos, "stegosaurus")
 	assert.NotContains(t, dinos, "triceratops")
 	assert.NotContains(t, dinos, "lambeosaurus")
 	assert.NotContains(t, dinos, "bruhathkayosaurus")
 
 	dinos = dinosaurs{}
-	err = db.Ref("/dinosaurs").OrderByChild("height").StartAt(2.5).EndAt(4.5).Value(&dinos)
+	db.Ref("/dinosaurs").OrderByChild("height").StartAt(2.5).EndAt(4.5).Value(&dinos)
 	assert.Contains(t, dinos, "triceratops")
 	assert.Contains(t, dinos, "stegosaurus")
 	assert.NotContains(t, dinos, "lambeosaurus")
 	assert.NotContains(t, dinos, "bruhathkayosaurus")
 
 	dinos = dinosaurs{}
-	err = db.Ref("/dinosaurs").OrderByKey().LimitToFirst(2).Value(&dinos)
+	db.Ref("/dinosaurs").OrderByKey().LimitToFirst(2).Value(&dinos)
 	assert.Contains(t, dinos, "bruhathkayosaurus")
 	assert.Contains(t, dinos, "lambeosaurus")
 	assert.NotContains(t, dinos, "linhenykus")
 	assert.NotContains(t, dinos, "stegosaurus")
 
 	scores := dinoScores{}
-	err = db.Ref("/scores").OrderByValue().LimitToLast(2).Value(&scores)
+	db.Ref("/scores").OrderByValue().LimitToLast(2).Value(&scores)
 	assert.Contains(t, scores, "linhenykus")
 	assert.Contains(t, scores, "pterodactyl")
 	assert.NotContains(t, scores, "bruhathkayosaurus")
@@ -183,15 +183,13 @@ func TestQueries(t *testing.T) {
 }
 
 func TestBadUrl(t *testing.T) {
-	_, err := NewFirebaseDB(":")
-	assert.Error(t, err)
+	db := NewReference(":")
+	assert.Error(t, db.Error)
 }
 
 func TestSet(t *testing.T) {
-	db, err := NewFirebaseDB(testingDbUrl)
-	if err != nil {
-		t.Fatal(err)
-	}
+	db := NewReference(testingDbUrl)
+	assert.NoError(t, db.Error)
 	type pokemon struct {
 		Name string `json:"name"`
 		CP   int    `json:"combat_point"`
@@ -201,7 +199,7 @@ func TestSet(t *testing.T) {
 		CP:   365,
 	}
 	root := db.Auth(Secret{Token: testingDbSecret}).Ref(uuid())
-	err = root.Child("pikachu").Set(&pika)
+	err := root.Child("pikachu").Set(&pika)
 	assert.NoError(t, err)
 
 	p2 := pokemon{}
@@ -214,10 +212,8 @@ func TestSet(t *testing.T) {
 }
 
 func TestPatch(t *testing.T) {
-	db, err := NewFirebaseDB(testingDbUrl)
-	if err != nil {
-		t.Fatal(err)
-	}
+	db := NewReference(testingDbUrl)
+	assert.NoError(t, db.Error)
 	type pokemon struct {
 		Name string `json:"name"`
 		CP   int    `json:"combat_point"`
@@ -227,7 +223,7 @@ func TestPatch(t *testing.T) {
 		CP:   365,
 	}
 	root := db.Auth(Secret{Token: testingDbSecret}).Ref(uuid())
-	err = root.Child("pikachu").Set(&pika)
+	err := root.Child("pikachu").Set(&pika)
 	assert.NoError(t, err)
 
 	p2 := pokemon{}
@@ -249,10 +245,8 @@ func TestPatch(t *testing.T) {
 }
 
 func TestPush(t *testing.T) {
-	db, err := NewFirebaseDB(testingDbUrl)
-	if err != nil {
-		t.Fatal(err)
-	}
+	db := NewReference(testingDbUrl)
+	assert.NoError(t, db.Error)
 	type pokemon struct {
 		Name string `json:"name"`
 		CP   int    `json:"combat_point"`
@@ -263,7 +257,7 @@ func TestPush(t *testing.T) {
 	}
 	root := db.Auth(Secret{Token: testingDbSecret}).Ref(uuid())
 
-	_, err = root.Child("pokemons").Push(&pika)
+	_, err := root.Child("pokemons").Push(&pika)
 	assert.NoError(t, err)
 
 	bulb := pokemon{

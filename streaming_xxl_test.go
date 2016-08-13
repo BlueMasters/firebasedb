@@ -59,8 +59,8 @@ func TestStreamXXL(t *testing.T) {
 	result = make(chan string)
 
 	allSubscriptions = make([]*Subscription, numberOfReceivers)
-	db, err := NewFirebaseDB(testingDbUrl)
-	assert.NoError(t, err)
+	db := NewReference(testingDbUrl)
+	assert.NoError(t, db.Error)
 	root := db.Auth(Secret{Token: testingDbSecret}).Ref(uuid())
 
 	ready := &sync.WaitGroup{}
@@ -113,6 +113,6 @@ func TestStreamXXL(t *testing.T) {
 		allSubscriptions[i].Close()
 	}
 
-	err = root.Remove()
+	err := root.Remove()
 	assert.NoError(t, err)
 }

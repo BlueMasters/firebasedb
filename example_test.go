@@ -35,9 +35,9 @@ func ExampleReference_Value() {
 
 	type dinosaurs map[string]dinosaurFact
 
-	db, err := NewFirebaseDB(dinoFactsUrl)
-	if err != nil {
-		log.Fatalf("Error opening database: %v", err)
+	db := NewReference(dinoFactsUrl)
+	if db.Error != nil {
+		log.Fatalf("Error opening database: %v", db.Error)
 	}
 	var dinos = dinosaurs{}
 	db.Ref("dinosaurs").Value(&dinos)
@@ -71,12 +71,12 @@ func ExampleReference_StartAt() {
 
 	type dinosaurs map[string]dinosaurFact
 
-	db, err := NewFirebaseDB(dinoFactsUrl)
-	if err != nil {
-		log.Fatalf("Error opening database: %v", err)
+	db := NewReference(dinoFactsUrl)
+	if db.Error != nil {
+		log.Fatalf("Error opening database: %v", db.Error)
 	}
 	var dinos = dinosaurs{}
-	err = db.Ref("dinosaurs").OrderByChild("height").StartAt(3).EndAt(5).Value(&dinos)
+	db.Ref("dinosaurs").OrderByChild("height").StartAt(3).EndAt(5).Value(&dinos)
 
 	var keys []string
 	for k := range(dinos) {
@@ -92,14 +92,14 @@ func ExampleReference_StartAt() {
 
 func ExampleReference_String() {
 	const dinoFactsUrl = "https://dinosaur-facts.firebaseio.com/"
-	db, _ := NewFirebaseDB(dinoFactsUrl)
+	db := NewReference(dinoFactsUrl)
 	fmt.Println(db.Ref("dinosaurs").Child("stegosaurus").String())
 	// Output: https://dinosaur-facts.firebaseio.com/dinosaurs/stegosaurus
 }
 
 func ExampleReference_PassKeepAlive() {
 	const dinoFactsUrl = "https://dinosaur-facts.firebaseio.com/"
-	db, _ := NewFirebaseDB(dinoFactsUrl)
+	db := NewReference(dinoFactsUrl)
 
 	// Get an events subscription that filters out keep-alive events (default)
 	s0, err := db.Ref("dinosaurs").PassKeepAlive(false).Subscribe()

@@ -12,6 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package firebasedb implements a REST client for the Firebase Realtime Database
+// (https://firebase.google.com/docs/database/). The API is as close as possible
+// to the official JavaScript API.
+//
+// Similar / related project:
+//   https://github.com/zabawaba99/firego
+//   https://github.com/cosn/firebase
+//
+// Reference / documentation:
+//   https://firebase.google.com/docs/reference/rest/database
+//   https://firebase.google.com/docs/database/rest/structure-data
+//   https://firebase.google.com/docs/database/rest/retrieve-data
+//   https://firebase.google.com/docs/database/rest/save-data
+//   https://firebase.google.com/docs/reference/js/firebase.database.Database
+//   https://firebase.google.com/docs/reference/js/firebase.database.Reference
+//   https://firebase.google.com/docs/reference/js/firebase.database.Query
+//   https://www.firebase.com/docs/rest/api
+//
+// This packages uses the "Advanced Go Concurrency Patterns" presented by Sameer Ajmani:
+//   https://blog.golang.org/advanced-go-concurrency-patterns
 package firebasedb
 
 import (
@@ -28,11 +48,25 @@ import (
 // for reading or writing data to that database location.
 type Reference struct {
 	url           urlLib.URL
-	err           error
+	Error         error
 	client        *http.Client
 	auth          Authenticator
 	passKeepAlive bool
 	retry         bool
+}
+
+// NewReference creates a new Firebase DB reference at url passed as parameter.
+func NewReference(url string) Reference {
+	parsedUrl, err := urlLib.Parse(url)
+	if err != nil {
+		return Reference{
+			Error: err,
+		}
+	}
+	return Reference{
+		url: *parsedUrl,
+		Error: nil,
+	}
 }
 
 // PassKeepAlive sets the passKeepAlive flag of the Reference. When the references is
@@ -52,12 +86,6 @@ func (r Reference) Retry(value bool) Reference {
 	return result
 }
 
-// Error returns the error from a reference. Note that an error is set as soon as
-// something wrong occurs with reference operations and is never reset.
-func (r Reference) Error() error {
-	return r.err
-}
-
 // httpClient returns the HTTP client from the reference or
 // http.DefaultClient if no client has been configured.
 func (r Reference) httpClient() *http.Client {
@@ -71,7 +99,7 @@ func (r Reference) httpClient() *http.Client {
 // withParam is a local function to add an error to a reference.
 func (r Reference) withError(err error) Reference {
 	result := r
-	result.err = err
+	result.Error = err
 	return result
 }
 

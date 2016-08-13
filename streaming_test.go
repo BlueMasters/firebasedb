@@ -21,9 +21,9 @@ import (
 )
 
 func TestStream(t *testing.T) {
-	db, err := NewFirebaseDB(testingDbUrl)
-	if err != nil {
-		t.Fatal(err)
+	db := NewReference(testingDbUrl)
+	if db.Error != nil {
+		t.Fatal(db.Error)
 	}
 	type pokemon struct {
 		Name string `json:"name"`
@@ -35,7 +35,7 @@ func TestStream(t *testing.T) {
 		Name: "Pikachu",
 		CP:   365,
 	}
-	err = root.Child("pikachu").Set(&pika)
+	err := root.Child("pikachu").Set(&pika)
 	assert.NoError(t, err)
 
 	s, err := root.Subscribe()
