@@ -73,6 +73,16 @@ func jsonReader(value interface{}) (io.Reader, error) {
 	return b, nil
 }
 
+func (r Reference) writeDebug(req *http.Request, response *http.Response) {
+	fmt.Fprintln(r.debug, "----- BEGIN DEBUG -----")
+	fmt.Fprintf(r.debug, "%v %v\n", req.Method, req.URL)
+	dbg := response.Header.Get("X-Firebase-Auth-Debug");
+	if (dbg != "") {
+	fmt.Fprintf(r.debug, "X-Firebase-Auth-Debug: %v\n", dbg)
+	}
+	fmt.Fprintln(r.debug, "----- END DEBUG -----")
+}
+
 // Value reads from the database and store the content in value. It gives an error
 // if it the request fails or if it can't decode the returned payload.
 func (r Reference) Value(value interface{}) (err error) {
@@ -85,6 +95,9 @@ func (r Reference) Value(value interface{}) (err error) {
 		return errors.New(fmt.Sprintf("error while executing the request: %v", err))
 	}
 	defer response.Body.Close()
+	if r.debug != nil {
+		r.writeDebug(req, response)
+	}
 	if response.StatusCode < 200 || response.StatusCode >= 300 {
 		return errors.New(fmt.Sprintf("error, response is : %v", response.Status))
 	}
@@ -115,6 +128,9 @@ func (r Reference) Set(value interface{}) (err error) {
 		return errors.New(fmt.Sprintf("error while executing the request: %v", err))
 	}
 	defer response.Body.Close()
+	if r.debug != nil {
+		r.writeDebug(req, response)
+	}
 	if response.StatusCode < 200 || response.StatusCode >= 300 {
 		return errors.New(fmt.Sprintf("error, response is : %v", response.Status))
 	}
@@ -137,6 +153,9 @@ func (r Reference) SetWithResult(value interface{}, result interface{}) (err err
 		return errors.New(fmt.Sprintf("error while executing the request: %v", err))
 	}
 	defer response.Body.Close()
+	if r.debug != nil {
+		r.writeDebug(req, response)
+	}
 	if response.StatusCode < 200 || response.StatusCode >= 300 {
 		return errors.New(fmt.Sprintf("error, response is : %v", response.Status))
 	}
@@ -172,6 +191,9 @@ func (r Reference) Update(value interface{}) (err error) {
 		return errors.New(fmt.Sprintf("error while executing the request: %v", err))
 	}
 	defer response.Body.Close()
+	if r.debug != nil {
+		r.writeDebug(req, response)
+	}
 	if response.StatusCode < 200 || response.StatusCode >= 300 {
 		return errors.New(fmt.Sprintf("error, response is : %v", response.Status))
 	}
@@ -194,6 +216,9 @@ func (r Reference) UpdateWithResult(value interface{}, result interface{}) (err 
 		return errors.New(fmt.Sprintf("error while executing the request: %v", err))
 	}
 	defer response.Body.Close()
+	if r.debug != nil {
+		r.writeDebug(req, response)
+	}
 	if response.StatusCode < 200 || response.StatusCode >= 300 {
 		return errors.New(fmt.Sprintf("error, response is : %v", response.Status))
 	}
@@ -225,6 +250,9 @@ func (r Reference) Push(value interface{}) (name string, err error) {
 
 	}
 	defer response.Body.Close()
+	if r.debug != nil {
+		r.writeDebug(req, response)
+	}
 	if response.StatusCode < 200 || response.StatusCode >= 300 {
 		return "", errors.New(fmt.Sprintf("error, response is : %v", response.Status))
 	}
@@ -256,6 +284,9 @@ func (r Reference) Remove() (err error) {
 		return errors.New(fmt.Sprintf("error while executing the request: %v", err))
 	}
 	defer response.Body.Close()
+	if r.debug != nil {
+		r.writeDebug(req, response)
+	}
 	if response.StatusCode < 200 || response.StatusCode >= 300 {
 		return errors.New(fmt.Sprintf("error, response is : %v", response.Status))
 	}

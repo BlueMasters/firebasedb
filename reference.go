@@ -42,6 +42,7 @@ import (
 	pathLib "path"
 	"strconv"
 	"strings"
+	"io"
 )
 
 // Reference represents a specific location in the database and can be used
@@ -51,6 +52,7 @@ type Reference struct {
 	Error         error
 	client        *http.Client
 	auth          Authenticator
+	debug 		  io.Writer
 	passKeepAlive bool
 	retry         bool
 }
@@ -162,6 +164,12 @@ func (r Reference) RefFromUrl(url urlLib.URL) Reference {
 // Rules returns a reference to the rules settings of the database.
 func (r Reference) Rules() Reference {
 	return r.Ref(".settings/rules")
+}
+
+func (r Reference) Debug(w io.Writer) Reference {
+	result := r
+	result.debug = w
+	return result
 }
 
 // Auth authenticates the request to allow access to data protected by Firebase Realtime Database Rules.
