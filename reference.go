@@ -37,12 +37,12 @@ package firebasedb
 import (
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	urlLib "net/url"
 	pathLib "path"
 	"strconv"
 	"strings"
-	"io"
 )
 
 // Reference represents a specific location in the database and can be used
@@ -52,7 +52,7 @@ type Reference struct {
 	Error         error
 	client        *http.Client
 	auth          Authenticator
-	debug 		  io.Writer
+	debug         io.Writer
 	passKeepAlive bool
 	retry         bool
 }
@@ -174,7 +174,10 @@ func (r Reference) Debug(w io.Writer) Reference {
 
 // Auth authenticates the request to allow access to data protected by Firebase Realtime Database Rules.
 // The argument is an object that implements the Authenticator interface. The String() method can either
-// returns a Firebase app's secret or an authentication token
+// returns a Firebase app's secret or an authentication token.
+//
+// Note that when the reference is used in a streaming submission, a "auth_revoked" event will trigger
+// a re-authentication, and reopen the http connection. *This will result in an additional "put" event*.
 //
 // See https://firebase.google.com/docs/reference/rest/database/#section-param-auth
 // and https://firebase.google.com/docs/reference/rest/database/user-auth

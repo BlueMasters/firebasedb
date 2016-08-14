@@ -1,12 +1,12 @@
 package firebasedb
 
 import (
-	"github.com/stretchr/testify/assert"
-	"testing"
 	jwt "github.com/dgrijalva/jwt-go"
-	"time"
-	"sync"
+	"github.com/stretchr/testify/assert"
 	"os"
+	"sync"
+	"testing"
+	"time"
 )
 
 func TestSecret(t *testing.T) {
@@ -18,9 +18,9 @@ func TestSecret(t *testing.T) {
 func TestJwt(t *testing.T) {
 	uid := uuid()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"v": 0,
+		"v":   0,
 		"iat": time.Now().Unix(),
-		"d" : map[string]interface{}{"uid": uid},
+		"d":   map[string]interface{}{"uid": uid},
 	})
 	tokenString, err := token.SignedString([]byte(testingDbSecret))
 	assert.NoError(t, err)
@@ -51,9 +51,9 @@ func TestJwt(t *testing.T) {
 func TestBadJwt(t *testing.T) {
 	uid := uuid()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"v": 0,
-		"iat": time.Now().Unix(),
-		"d" : map[string]interface{}{"uid": uid},
+		"v":     0,
+		"iat":   time.Now().Unix(),
+		"d":     map[string]interface{}{"uid": uid},
 		"debug": true,
 	})
 	tokenString, err := token.SignedString([]byte("BAD-SECRET"))
@@ -75,9 +75,9 @@ func TestBadJwt(t *testing.T) {
 }
 
 type jwtToken struct {
-	uid string
-	key string
-	str string
+	uid        string
+	key        string
+	str        string
 	renewCount int
 }
 
@@ -92,10 +92,10 @@ func (t *jwtToken) ParamName() string {
 func (t *jwtToken) Renew() error {
 	t.renewCount += 1
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"v": 0,
+		"v":   0,
 		"iat": time.Now().Unix(),
 		"exp": time.Now().Add(4 * time.Second).Unix(),
-		"d" : map[string]interface{}{"uid": t.uid},
+		"d":   map[string]interface{}{"uid": t.uid},
 	})
 	tokenString, err := token.SignedString([]byte(t.key))
 	if err != nil {
@@ -143,10 +143,10 @@ func TestAuthRevoked(t *testing.T) {
 
 	s, err := root.Auth(&rt).Child("pikachu").Subscribe()
 	assert.NoError(t, err)
-	outer:
+outer:
 	for {
 		select {
-		case e := <- s.Events():
+		case e := <-s.Events():
 			if e.Type == "put" {
 				var d map[string]interface{}
 				_, err := e.Value(&d)
@@ -156,7 +156,7 @@ func TestAuthRevoked(t *testing.T) {
 				}
 			}
 
-		case <- time.After(15 * time.Second):
+		case <-time.After(15 * time.Second):
 			assert.Fail(t, "Timeout")
 			break outer
 		}

@@ -76,9 +76,9 @@ func jsonReader(value interface{}) (io.Reader, error) {
 func (r Reference) writeDebug(req *http.Request, response *http.Response) {
 	fmt.Fprintln(r.debug, "----- BEGIN DEBUG -----")
 	fmt.Fprintf(r.debug, "%v %v\n", req.Method, req.URL)
-	dbg := response.Header.Get("X-Firebase-Auth-Debug");
-	if (dbg != "") {
-	fmt.Fprintf(r.debug, "X-Firebase-Auth-Debug: %v\n", dbg)
+	dbg := response.Header.Get("X-Firebase-Auth-Debug")
+	if dbg != "" {
+		fmt.Fprintf(r.debug, "X-Firebase-Auth-Debug: %v\n", dbg)
 	}
 	fmt.Fprintln(r.debug, "----- END DEBUG -----")
 }

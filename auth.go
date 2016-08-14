@@ -26,7 +26,6 @@
 //     }
 // }
 
-
 package firebasedb
 
 import "errors"
