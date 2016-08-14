@@ -55,12 +55,12 @@ func TestStream(t *testing.T) {
 		assert.Fail(t, "Got Timeout instead of first event")
 	}
 
-    select {
-    case  <-s.Events():
-        assert.Fail(t, "Got a second event!")
-    case <-time.After(1 * time.Second):
-        // pass
-    }
+	select {
+	case <-s.Events():
+		assert.Fail(t, "Got a second event!")
+	case <-time.After(1 * time.Second):
+		// pass
+	}
 
 	p2 := pokemon{}
 	err = root.Child("pikachu").Value(&p2)
@@ -75,6 +75,5 @@ func TestStream(t *testing.T) {
 
 	generic := map[string]interface{}{}
 	err = root.Value(&generic)
-
 
 }

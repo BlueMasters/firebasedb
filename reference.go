@@ -37,11 +37,11 @@ package firebasedb
 import (
 	"errors"
 	"fmt"
+	"net/http"
 	urlLib "net/url"
 	pathLib "path"
 	"strconv"
 	"strings"
-	"net/http"
 )
 
 // Reference represents a specific location in the database and can be used
@@ -64,7 +64,7 @@ func NewReference(url string) Reference {
 		}
 	}
 	return Reference{
-		url: *parsedUrl,
+		url:   *parsedUrl,
 		Error: nil,
 	}
 }
@@ -135,6 +135,7 @@ func (r Reference) withQuotedParam(key string, value interface{}) Reference {
 		return r.withError(err)
 	}
 }
+
 // Ref returns a reference to the root or the specified path.
 // See https://firebase.google.com/docs/reference/js/firebase.database.Reference#ref
 // or https://firebase.google.com/docs/reference/js/firebase.database.Database#ref

@@ -15,10 +15,10 @@
 package firebasedb
 
 import (
-	"github.com/stretchr/testify/assert"
-	"testing"
-	"sync"
 	"fmt"
+	"github.com/stretchr/testify/assert"
+	"sync"
+	"testing"
 	"time"
 )
 
@@ -81,33 +81,33 @@ func TestStreamXXL(t *testing.T) {
 	counter := 0
 	var finished <-chan time.Time
 
-	outer:
+outer:
 	for {
 		select {
 		case x := <-result:
 			counter++
 			i, ok := checker[x]
 			if ok {
-				checker[x] = i+1
+				checker[x] = i + 1
 			} else {
 				checker[x] = 1
 			}
-			if counter == (numberOfSenders * numberOfObjects + 1) * numberOfReceivers {
+			if counter == (numberOfSenders*numberOfObjects+1)*numberOfReceivers {
 				// all received... wait 1 second more
 				finished = time.After(1 * time.Second)
 			}
-		case <- finished:
+		case <-finished:
 			break outer
-		case <- time.After(2 * time.Second):
+		case <-time.After(2 * time.Second):
 			assert.Fail(t, "timeout!")
 			break outer
 		}
 	}
 
-	assert.Equal(t, (numberOfSenders * numberOfObjects + 1) * numberOfReceivers, counter)
+	assert.Equal(t, (numberOfSenders*numberOfObjects+1)*numberOfReceivers, counter)
 	assert.Contains(t, checker, "")
 	assert.EqualValues(t, checker[""], numberOfReceivers)
-	assert.Len(t, checker, numberOfSenders * numberOfObjects + 1)
+	assert.Len(t, checker, numberOfSenders*numberOfObjects+1)
 
 	for i := 0; i < numberOfReceivers; i++ {
 		allSubscriptions[i].Close()

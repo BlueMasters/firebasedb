@@ -15,28 +15,28 @@
 package firebasedb
 
 import (
-    "testing"
-    "os"
-    "log"
+	"log"
+	"os"
+	"testing"
 )
 
 var (
-    testingDbUrl string
-    testingDbSecret string
+	testingDbUrl    string
+	testingDbSecret string
 )
 
 func TestMain(m *testing.M) {
-    testingDbUrl = os.Getenv("FIREBASE_DB_TESTING_URL")
-    if (testingDbUrl == "") {
-        log.Fatal("Please set the 'FIREBASE_DB_TESTING_URL' environment variable with the URL of your database")
-    }
-    testingDbSecret = os.Getenv("FIREBASE_DB_TESTING_SECRET")
-    if (testingDbSecret == "") {
-        log.Fatal("Please set the 'FIREBASE_DB_TESTING_SECRET' environment variable with the secret token of your database")
-    }
-    agree := os.Getenv("FIREBASE_DB_TESTING_I_UNDERSTAND_THAT_THIS_WILL_DELETE_EXISTING_DATA")
-    if (agree != "I AGREE") {
-        log.Fatal("Please set the 'FIREBASE_DB_TESTING_I_UNDERSTAND_THAT_THIS_WILL_DELETE_EXISTING_DATA' to 'I AGREE'")
-    }
-    os.Exit(m.Run())
+	testingDbUrl = os.Getenv("FIREBASE_DB_TESTING_URL")
+	if testingDbUrl == "" {
+		log.Fatal("Please set the 'FIREBASE_DB_TESTING_URL' environment variable with the URL of your database")
+	}
+	testingDbSecret = os.Getenv("FIREBASE_DB_TESTING_SECRET")
+	if testingDbSecret == "" {
+		log.Fatal("Please set the 'FIREBASE_DB_TESTING_SECRET' environment variable with the secret token of your database")
+	}
+	agree := os.Getenv("FIREBASE_DB_TESTING_I_UNDERSTAND_THAT_THIS_WILL_DELETE_EXISTING_DATA")
+	if agree != "I AGREE" {
+		log.Fatal("Please set the 'FIREBASE_DB_TESTING_I_UNDERSTAND_THAT_THIS_WILL_DELETE_EXISTING_DATA' to 'I AGREE'")
+	}
+	os.Exit(m.Run())
 }

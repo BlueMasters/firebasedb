@@ -18,9 +18,9 @@ import (
 	"crypto/rand"
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"net/http"
 	"net/url"
 	"testing"
-	"net/http"
 )
 
 const dinoFactsUrl = "https://dinosaur-facts.firebaseio.com/"
@@ -50,7 +50,7 @@ func uuid() string {
 
 func TestRefOperators(t *testing.T) {
 	db := NewReference(dinoFactsUrl)
-	assert.NoError(t,db.Error)
+	assert.NoError(t, db.Error)
 	dino := db.Ref("/dinosaurs")
 	assert.Equal(t, db.Key(), "")
 	pterodactyl := dino.Child("pterodactyl")
@@ -233,7 +233,6 @@ func TestPatch(t *testing.T) {
 	assert.Contains(t, res, "combat_point")
 	assert.EqualValues(t, 365, res["combat_point"])
 	assert.Contains(t, res, "name")
-
 
 	p2 := pokemon{}
 	err = root.Child("pikachu").Value(&p2)

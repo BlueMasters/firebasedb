@@ -19,17 +19,16 @@
 // https://firebase.google.com/docs/database/rest/save-data
 // https://firebase.google.com/docs/database/rest/retrieve-data
 
-
 package firebasedb
 
 import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	pathLib "path"
-	"fmt"
 )
 
 // WithHttpClient sets a custom HTTP client for the REST requests. If set to nil (default),
@@ -43,9 +42,9 @@ func (r Reference) WithHttpClient(c *http.Client) Reference {
 // addAuth returns a new reference with authentication information (if available).
 func (r Reference) addAuth() Reference {
 	if r.auth != nil {
-		return r.withParam("auth", r.auth.String())
+		return r.withParam(r.auth.ParamName(), r.auth.String())
 	} else {
-        return r
+		return r
 	}
 }
 
@@ -86,7 +85,7 @@ func (r Reference) Value(value interface{}) (err error) {
 		return errors.New(fmt.Sprintf("error while executing the request: %v", err))
 	}
 	defer response.Body.Close()
-	if response.StatusCode < 200 || response.StatusCode >=300 {
+	if response.StatusCode < 200 || response.StatusCode >= 300 {
 		return errors.New(fmt.Sprintf("error, response is : %v", response.Status))
 	}
 	d := json.NewDecoder(response.Body)
@@ -116,7 +115,7 @@ func (r Reference) Set(value interface{}) (err error) {
 		return errors.New(fmt.Sprintf("error while executing the request: %v", err))
 	}
 	defer response.Body.Close()
-	if response.StatusCode < 200 || response.StatusCode >=300 {
+	if response.StatusCode < 200 || response.StatusCode >= 300 {
 		return errors.New(fmt.Sprintf("error, response is : %v", response.Status))
 	}
 	return nil
@@ -138,7 +137,7 @@ func (r Reference) SetWithResult(value interface{}, result interface{}) (err err
 		return errors.New(fmt.Sprintf("error while executing the request: %v", err))
 	}
 	defer response.Body.Close()
-	if response.StatusCode < 200 || response.StatusCode >=300 {
+	if response.StatusCode < 200 || response.StatusCode >= 300 {
 		return errors.New(fmt.Sprintf("error, response is : %v", response.Status))
 	}
 	d := json.NewDecoder(response.Body)
@@ -173,7 +172,7 @@ func (r Reference) Update(value interface{}) (err error) {
 		return errors.New(fmt.Sprintf("error while executing the request: %v", err))
 	}
 	defer response.Body.Close()
-	if response.StatusCode < 200 || response.StatusCode >=300 {
+	if response.StatusCode < 200 || response.StatusCode >= 300 {
 		return errors.New(fmt.Sprintf("error, response is : %v", response.Status))
 	}
 	return nil
@@ -195,7 +194,7 @@ func (r Reference) UpdateWithResult(value interface{}, result interface{}) (err 
 		return errors.New(fmt.Sprintf("error while executing the request: %v", err))
 	}
 	defer response.Body.Close()
-	if response.StatusCode < 200 || response.StatusCode >=300 {
+	if response.StatusCode < 200 || response.StatusCode >= 300 {
 		return errors.New(fmt.Sprintf("error, response is : %v", response.Status))
 	}
 	d := json.NewDecoder(response.Body)
@@ -226,7 +225,7 @@ func (r Reference) Push(value interface{}) (name string, err error) {
 
 	}
 	defer response.Body.Close()
-	if response.StatusCode < 200 || response.StatusCode >=300 {
+	if response.StatusCode < 200 || response.StatusCode >= 300 {
 		return "", errors.New(fmt.Sprintf("error, response is : %v", response.Status))
 	}
 	result := map[string]string{}
@@ -257,7 +256,7 @@ func (r Reference) Remove() (err error) {
 		return errors.New(fmt.Sprintf("error while executing the request: %v", err))
 	}
 	defer response.Body.Close()
-	if response.StatusCode < 200 || response.StatusCode >=300 {
+	if response.StatusCode < 200 || response.StatusCode >= 300 {
 		return errors.New(fmt.Sprintf("error, response is : %v", response.Status))
 	}
 	return nil

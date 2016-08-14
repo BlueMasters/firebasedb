@@ -42,11 +42,11 @@ func ExampleReference_Value() {
 	var dinos = dinosaurs{}
 	db.Ref("dinosaurs").Value(&dinos)
 	var keys []string
-	for k := range(dinos) {
+	for k := range dinos {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
-	for _, k := range(keys) {
+	for _, k := range keys {
 		fmt.Printf("The %s's height is %v\n", k, dinos[k].Height)
 	}
 	// Output: The bruhathkayosaurus's height is 25
@@ -79,11 +79,11 @@ func ExampleReference_StartAt() {
 	db.Ref("dinosaurs").OrderByChild("height").StartAt(3).EndAt(5).Value(&dinos)
 
 	var keys []string
-	for k := range(dinos) {
+	for k := range dinos {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
-	for _, k := range(keys) {
+	for _, k := range keys {
 		fmt.Printf("The %s's height is %v\n", k, dinos[k].Height)
 	}
 	// Output: The stegosaurus's height is 4

@@ -22,11 +22,11 @@ import (
 	"bufio"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
 	"time"
-	"fmt"
 )
 
 // Event is the type used to represent streaming events. The type of the event
@@ -67,7 +67,7 @@ type Subscription struct {
 	LastKeepAlive time.Time
 }
 
-func (r Reference) openStream() (io.ReadCloser, error){
+func (r Reference) openStream() (io.ReadCloser, error) {
 	req, err := http.NewRequest("GET", r.addAuth().jsonUrl(), nil)
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("error while building the request: %v", err))
