@@ -39,8 +39,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	urlLib "net/url"
-	pathLib "path"
+	urllib "net/url"
+	pathlib "path"
 	"strconv"
 	"strings"
 )
@@ -48,7 +48,7 @@ import (
 // Reference represents a specific location in the database and can be used
 // for reading or writing data to that database location.
 type Reference struct {
-	url           urlLib.URL
+	url           urllib.URL
 	Error         error
 	client        *http.Client
 	auth          Authenticator
@@ -59,7 +59,7 @@ type Reference struct {
 
 // NewReference creates a new Firebase DB reference at url passed as parameter.
 func NewReference(url string) Reference {
-	parsedUrl, err := urlLib.Parse(url)
+	parsedUrl, err := urllib.Parse(url)
 	if err != nil {
 		return Reference{
 			Error: err,
@@ -144,7 +144,7 @@ func (r Reference) withQuotedParam(key string, value interface{}) Reference {
 // for more details.
 func (r Reference) Ref(path string) Reference {
 	result := r
-	result.url.Path = pathLib.Clean(pathLib.Join("/", path))
+	result.url.Path = pathlib.Clean(pathlib.Join("/", path))
 	return result
 }
 
@@ -153,7 +153,7 @@ func (r Reference) Ref(path string) Reference {
 //
 // See https://firebase.google.com/docs/reference/js/firebase.database.Database#refFromURL
 // for more details.
-func (r Reference) RefFromUrl(url urlLib.URL) Reference {
+func (r Reference) RefFromUrl(url urllib.URL) Reference {
 	if r.url.Host != url.Host {
 		return r.withError(errors.New("The URL has not the same host as the current database"))
 	} else {
@@ -232,7 +232,7 @@ func (r Reference) Export() Reference {
 // See https://firebase.google.com/docs/reference/js/firebase.database.Reference#key
 // for more detail.
 func (r Reference) Key() string {
-	p := pathLib.Base(pathLib.Clean(r.url.Path))
+	p := pathlib.Base(pathlib.Clean(r.url.Path))
 	if p == "." || p == "/" {
 		return ""
 	} else {
@@ -246,7 +246,7 @@ func (r Reference) Key() string {
 // for more details.
 func (r Reference) Parent() Reference {
 	result := r
-	result.url.Path = pathLib.Clean(pathLib.Join(result.url.Path, ".."))
+	result.url.Path = pathlib.Clean(pathlib.Join(result.url.Path, ".."))
 	return result
 }
 
@@ -266,7 +266,7 @@ func (r Reference) Root() Reference {
 // for more details.
 func (r Reference) Child(path string) Reference {
 	result := r
-	result.url.Path = pathLib.Clean(pathLib.Join(result.url.Path, path))
+	result.url.Path = pathlib.Clean(pathlib.Join(result.url.Path, path))
 	return result
 }
 
