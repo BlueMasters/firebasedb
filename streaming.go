@@ -60,10 +60,10 @@ func (e Event) Value(v interface{}) (path string, err error) {
 // Subscription is the interface for event subscriptions. Subscriptions
 // are returned by the Subscribe method.
 type Subscription struct {
-	reader        io.ReadCloser   // from the HTTP request's body
-	reference     *Reference      // copy of the reference
-	events        chan Event      // sends events to the user
-	closing       chan chan error // for Close
+	reader        io.ReadCloser // from the HTTP request's body
+	reference     *Reference    // copy of the reference
+	events        chan Event    // sends events to the user
+	closing       chan bool     // for Close
 	LastKeepAlive time.Time
 }
 
@@ -94,8 +94,8 @@ func (r Reference) Subscribe() (*Subscription, error) {
 	s := &Subscription{
 		reader:    reader,
 		reference: &r,
-		events:    make(chan Event),      // for Events
-		closing:   make(chan chan error), // for Close
+		events:    make(chan Event), // for Events
+		closing:   make(chan bool),  // for Close
 	}
 	go s.loop()
 	return s, nil
@@ -108,15 +108,14 @@ func (s *Subscription) Events() <-chan Event {
 
 // Close closes the subscription and finishes the request.
 func (s *Subscription) Close() error {
-	errChan := make(chan error)
-	s.closing <- errChan
-	return <-errChan
+	return s.reader.Close()
 }
 
 // main loop
 func (s *Subscription) loop() {
 
 	var fetchEvent = make(chan Event)
+	defer close(fetchEvent)
 	var pending []Event
 
 	go func() { // read the payload and feed the fetchEvent channel
@@ -178,6 +177,7 @@ func (s *Subscription) loop() {
 				}
 			}
 		}
+		s.closing <- true
 	}()
 
 	for {
@@ -193,9 +193,7 @@ func (s *Subscription) loop() {
 			// Currently, I am not controlling the size of the pending queue.
 			// But the structure of this program enables those check if required.
 			pending = append(pending, event)
-		case errc := <-s.closing:
-			errc <- nil
-			s.reader.Close()
+		case <-s.closing:
 			close(s.events)
 			break
 		case events <- first:
