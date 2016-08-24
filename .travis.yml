@@ -16,6 +16,7 @@ before_install:
 
 install:
   - go get github.com/stretchr/testify/assert
+  - go get -d ./...
   - go build
 
 script:
