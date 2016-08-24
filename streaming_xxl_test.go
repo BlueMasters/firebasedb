@@ -98,7 +98,7 @@ outer:
 			}
 		case <-finished:
 			break outer
-		case <-time.After(2 * time.Second):
+		case <-time.After(5 * time.Second):
 			assert.Fail(t, "timeout!")
 			break outer
 		}
