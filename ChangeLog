@@ -1,3 +1,7 @@
+2016-08-24  Jacques Supcik <jacques@supcik.net>
+
+    Implementation of the "retry" feature using https://github.com/taskcluster/httpbackoff
+
 2016-08-12  Jacques Supcik <jacques@supcik.net>
 
     New authentication mechanism. The library now uses an "Authentifier interface" instead of a simple string.

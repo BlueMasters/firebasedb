@@ -73,7 +73,7 @@ func (r Reference) openStream() (io.ReadCloser, error) {
 		return nil, errors.New(fmt.Sprintf("error while building the request: %v", err))
 	}
 	req.Header.Add("Accept", "text/event-stream")
-	response, err := http.DefaultClient.Do(req)
+	response, err := r.do(req)
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("error while executing the request: %v", err))
 	}

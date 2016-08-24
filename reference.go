@@ -37,6 +37,7 @@ package firebasedb
 import (
 	"errors"
 	"fmt"
+	"github.com/cenkalti/backoff"
 	"io"
 	"net/http"
 	urllib "net/url"
@@ -48,13 +49,14 @@ import (
 // Reference represents a specific location in the database and can be used
 // for reading or writing data to that database location.
 type Reference struct {
-	url           urllib.URL
+	Attempts      int
 	Error         error
+	url           urllib.URL
 	client        *http.Client
 	auth          Authenticator
 	debug         io.Writer
 	passKeepAlive bool
-	retry         bool
+	retry         *backoff.ExponentialBackOff
 }
 
 // NewReference creates a new Firebase DB reference at url passed as parameter.
@@ -80,11 +82,11 @@ func (r Reference) PassKeepAlive(value bool) Reference {
 	return result
 }
 
-// Retry sets the retry flag for the Reference. When a references has the retry flag set,
+// Retry sets the retry policy for the Reference. When a references has the retry policy set,
 // then the library will retry the requests in case of failures.
-func (r Reference) Retry(value bool) Reference {
+func (r Reference) Retry(backOff *backoff.ExponentialBackOff) Reference {
 	result := r
-	result.retry = value
+	result.retry = backOff
 	return result
 }
 

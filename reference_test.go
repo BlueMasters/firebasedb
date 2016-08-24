@@ -1,6 +1,7 @@
 package firebasedb
 
 import (
+	"github.com/cenkalti/backoff"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -23,16 +24,16 @@ func TestPassKeepAlive(t *testing.T) {
 func TestPassRetry(t *testing.T) {
 	r1 := NewReference("https://domain.com/")
 	assert.NoError(t, r1.Error)
-	assert.False(t, r1.retry)
+	assert.Nil(t, r1.retry)
 
-	r2 := r1.Retry(true)
-	assert.False(t, r1.retry)
-	assert.True(t, r2.retry)
+	r2 := r1.Retry(backoff.NewExponentialBackOff())
+	assert.Nil(t, r1.retry)
+	assert.IsType(t, backoff.NewExponentialBackOff(), r2.retry)
 
-	r3 := r2.Retry(false)
-	assert.False(t, r1.retry)
-	assert.True(t, r2.retry)
-	assert.False(t, r3.retry)
+	r3 := r2.Retry(nil)
+	assert.Nil(t, r1.retry)
+	assert.NotNil(t, r2.retry)
+	assert.Nil(t, r3.retry)
 }
 
 func TestRules(t *testing.T) {

@@ -17,6 +17,7 @@ package firebasedb
 import (
 	"crypto/rand"
 	"fmt"
+	"github.com/cenkalti/backoff"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/url"
@@ -129,6 +130,23 @@ func TestDotUrl(t *testing.T) {
 
 func TestDino(t *testing.T) {
 	db := NewReference(dinoFactsUrl)
+	assert.NoError(t, db.Error)
+	var dinos = dinosaurs{}
+	err := db.Ref("/dinosaurs").Value(&dinos)
+	assert.NoError(t, err)
+	assert.Contains(t, dinos, "pterodactyl")
+	assert.NotContains(t, dinos, "pikachu")
+	assert.EqualValues(t, dinos["pterodactyl"].Appeared, -150000000)
+	assert.EqualValues(t, dinos["pterodactyl"].Order, "pterosauria")
+	var scores = dinoScores{}
+	err = db.Ref("/scores").Value(&scores)
+	assert.NoError(t, err)
+	assert.Contains(t, scores, "pterodactyl")
+	assert.EqualValues(t, scores["pterodactyl"], 93)
+}
+
+func TestDinoRetry(t *testing.T) {
+	db := NewReference(dinoFactsUrl).Retry(backoff.NewExponentialBackOff())
 	assert.NoError(t, db.Error)
 	var dinos = dinosaurs{}
 	err := db.Ref("/dinosaurs").Value(&dinos)

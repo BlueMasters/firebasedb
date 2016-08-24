@@ -26,6 +26,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/taskcluster/httpbackoff"
 	"io"
 	"net/http"
 	pathlib "path"
@@ -83,6 +84,19 @@ func (r Reference) writeDebug(req *http.Request, response *http.Response) {
 	fmt.Fprintln(r.debug, "----- END DEBUG -----")
 }
 
+func (r *Reference) do(req *http.Request) (*http.Response, error) {
+	client := r.httpClient()
+	if r.retry == nil {
+		r.Attempts = 1
+		return client.Do(req)
+	} else {
+		backoffClient := httpbackoff.Client{r.retry}
+		resp, attempts, err := backoffClient.ClientDo(client, req)
+		r.Attempts = attempts
+		return resp, err
+	}
+}
+
 // Value reads from the database and store the content in value. It gives an error
 // if it the request fails or if it can't decode the returned payload.
 func (r Reference) Value(value interface{}) (err error) {
@@ -90,7 +104,7 @@ func (r Reference) Value(value interface{}) (err error) {
 	if err != nil {
 		return errors.New(fmt.Sprintf("error while building the request: %v", err))
 	}
-	response, err := r.httpClient().Do(req)
+	response, err := r.do(req)
 	if err != nil {
 		return errors.New(fmt.Sprintf("error while executing the request: %v", err))
 	}
@@ -123,7 +137,7 @@ func (r Reference) Set(value interface{}) (err error) {
 	if err != nil {
 		return errors.New(fmt.Sprintf("error while building the request: %v", err))
 	}
-	response, err := r.httpClient().Do(req)
+	response, err := r.do(req)
 	if err != nil {
 		return errors.New(fmt.Sprintf("error while executing the request: %v", err))
 	}
@@ -148,7 +162,7 @@ func (r Reference) SetWithResult(value interface{}, result interface{}) (err err
 	if err != nil {
 		return errors.New(fmt.Sprintf("error while building the request: %v", err))
 	}
-	response, err := r.httpClient().Do(req)
+	response, err := r.do(req)
 	if err != nil {
 		return errors.New(fmt.Sprintf("error while executing the request: %v", err))
 	}
@@ -186,7 +200,7 @@ func (r Reference) Update(value interface{}) (err error) {
 	if err != nil {
 		return errors.New(fmt.Sprintf("error while building the request: %v", err))
 	}
-	response, err := r.httpClient().Do(req)
+	response, err := r.do(req)
 	if err != nil {
 		return errors.New(fmt.Sprintf("error while executing the request: %v", err))
 	}
@@ -211,7 +225,7 @@ func (r Reference) UpdateWithResult(value interface{}, result interface{}) (err 
 	if err != nil {
 		return errors.New(fmt.Sprintf("error while building the request: %v", err))
 	}
-	response, err := r.httpClient().Do(req)
+	response, err := r.do(req)
 	if err != nil {
 		return errors.New(fmt.Sprintf("error while executing the request: %v", err))
 	}
@@ -244,7 +258,7 @@ func (r Reference) Push(value interface{}) (name string, err error) {
 	if err != nil {
 		return "", errors.New(fmt.Sprintf("error while building the request: %v", err))
 	}
-	response, err := r.httpClient().Do(req)
+	response, err := r.do(req)
 	if err != nil {
 		return "", errors.New(fmt.Sprintf("error while executing the request: %v", err))
 
@@ -279,7 +293,7 @@ func (r Reference) Remove() (err error) {
 	if err != nil {
 		return errors.New(fmt.Sprintf("error while building the request: %v", err))
 	}
-	response, err := r.httpClient().Do(req)
+	response, err := r.do(req)
 	if err != nil {
 		return errors.New(fmt.Sprintf("error while executing the request: %v", err))
 	}
