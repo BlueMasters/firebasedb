@@ -42,7 +42,7 @@ type Event struct {
 
 // Value unmarshals data from an event. It returns the data in v and the path
 // of the event in the path return attribute.
-func (e Event) Value(v interface{}) (path string, err error) {
+func (e *Event) Value(v interface{}) (path string, err error) {
 	var p struct {
 		Path string      `json:"path"`
 		Data interface{} `json:"data"`
@@ -62,12 +62,12 @@ func (e Event) Value(v interface{}) (path string, err error) {
 type Subscription struct {
 	reader        io.ReadCloser // from the HTTP request's body
 	reference     *Reference    // copy of the reference
-	events        chan Event    // sends events to the user
+	events        chan *Event   // sends events to the user
 	closing       chan bool     // for Close
 	LastKeepAlive time.Time
 }
 
-func (r Reference) openStream() (io.ReadCloser, error) {
+func (r *Reference) openStream() (io.ReadCloser, error) {
 	req, err := http.NewRequest("GET", r.addAuth().jsonUrl(), nil)
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("error while building the request: %v", err))
@@ -86,23 +86,23 @@ func (r Reference) openStream() (io.ReadCloser, error) {
 
 // Subscribe returns a subscription on the reference. The returned subscription
 // is used to access the streamed events.
-func (r Reference) Subscribe() (*Subscription, error) {
+func (r *Reference) Subscribe() (*Subscription, error) {
 	reader, err := r.openStream()
 	if err != nil {
 		return nil, err
 	}
 	s := &Subscription{
 		reader:    reader,
-		reference: &r,
-		events:    make(chan Event), // for Events
-		closing:   make(chan bool),  // for Close
+		reference: r,
+		events:    make(chan *Event), // for Events
+		closing:   make(chan bool),   // for Close
 	}
 	go s.loop()
 	return s, nil
 }
 
 // Events returns the event channel from the subscription.
-func (s *Subscription) Events() <-chan Event {
+func (s *Subscription) Events() <-chan *Event {
 	return s.events
 }
 
@@ -181,10 +181,10 @@ func (s *Subscription) loop() {
 	}()
 
 	for {
-		var first Event
-		var events chan Event
+		var first *Event
+		var events chan *Event
 		if len(pending) > 0 {
-			first = pending[0]
+			first = &pending[0]
 			events = s.events // enable send case
 		}
 

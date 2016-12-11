@@ -26,22 +26,23 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/taskcluster/httpbackoff"
 	"io"
 	"net/http"
 	pathlib "path"
+
+	"github.com/taskcluster/httpbackoff"
 )
 
 // WithHttpClient sets a custom HTTP client for the REST requests. If set to nil (default),
 // then http.DefaultClient is used.
-func (r Reference) WithHttpClient(c *http.Client) Reference {
-	result := r
+func (r *Reference) WithHttpClient(c *http.Client) *Reference {
+	result := *r
 	result.client = c
-	return result
+	return &result
 }
 
 // addAuth returns a new reference with authentication information (if available).
-func (r Reference) addAuth() Reference {
+func (r *Reference) addAuth() *Reference {
 	if r.auth != nil {
 		return r.withParam(r.auth.ParamName(), r.auth.String())
 	} else {
@@ -51,7 +52,7 @@ func (r Reference) addAuth() Reference {
 
 // jsonUrl is an internal function to build the URL for the REST API
 // See https://firebase.google.com/docs/reference/rest/database/ "API Usage".
-func (r Reference) jsonUrl() string {
+func (r *Reference) jsonUrl() string {
 	u := r.url
 	u.Path = pathlib.Clean(u.Path)
 	if u.Path == "." {
@@ -74,7 +75,7 @@ func jsonReader(value interface{}) (io.Reader, error) {
 	return b, nil
 }
 
-func (r Reference) writeDebug(req *http.Request, response *http.Response) {
+func (r *Reference) writeDebug(req *http.Request, response *http.Response) {
 	fmt.Fprintln(r.debug, "----- BEGIN DEBUG -----")
 	fmt.Fprintf(r.debug, "%v %v\n", req.Method, req.URL)
 	dbg := response.Header.Get("X-Firebase-Auth-Debug")
@@ -99,7 +100,7 @@ func (r *Reference) do(req *http.Request) (*http.Response, error) {
 
 // Value reads from the database and store the content in value. It gives an error
 // if it the request fails or if it can't decode the returned payload.
-func (r Reference) Value(value interface{}) (err error) {
+func (r *Reference) Value(value interface{}) (err error) {
 	req, err := http.NewRequest("GET", r.addAuth().jsonUrl(), nil)
 	if err != nil {
 		return errors.New(fmt.Sprintf("error while building the request: %v", err))
@@ -128,7 +129,7 @@ func (r Reference) Value(value interface{}) (err error) {
 //
 // See https://firebase.google.com/docs/reference/js/firebase.database.Reference#set
 // for more details.
-func (r Reference) Set(value interface{}) (err error) {
+func (r *Reference) Set(value interface{}) (err error) {
 	b, err := jsonReader(value)
 	if err != nil {
 		return errors.New(fmt.Sprintf("error reading body: %v", err))
@@ -153,7 +154,7 @@ func (r Reference) Set(value interface{}) (err error) {
 
 // SetWithResult does the same as the Set function and, additionally, stores the
 // resulting node in result.
-func (r Reference) SetWithResult(value interface{}, result interface{}) (err error) {
+func (r *Reference) SetWithResult(value interface{}, result interface{}) (err error) {
 	b, err := jsonReader(value)
 	if err != nil {
 		return errors.New(fmt.Sprintf("error reading body: %v", err))
@@ -191,7 +192,7 @@ func (r Reference) SetWithResult(value interface{}, result interface{}) (err err
 //
 // See https://firebase.google.com/docs/reference/js/firebase.database.Reference#update
 // for more details.
-func (r Reference) Update(value interface{}) (err error) {
+func (r *Reference) Update(value interface{}) (err error) {
 	b, err := jsonReader(value)
 	if err != nil {
 		return errors.New(fmt.Sprintf("error reading body: %v", err))
@@ -216,7 +217,7 @@ func (r Reference) Update(value interface{}) (err error) {
 
 // UpdateWithResult does the same as the Update function and, additionally, stores the
 // updated node in result.
-func (r Reference) UpdateWithResult(value interface{}, result interface{}) (err error) {
+func (r *Reference) UpdateWithResult(value interface{}, result interface{}) (err error) {
 	b, err := jsonReader(value)
 	if err != nil {
 		return errors.New(fmt.Sprintf("error reading body: %v", err))
@@ -249,7 +250,7 @@ func (r Reference) UpdateWithResult(value interface{}, result interface{}) (err 
 //
 // See https://firebase.google.com/docs/reference/js/firebase.database.Reference#push
 // for more details.
-func (r Reference) Push(value interface{}) (name string, err error) {
+func (r *Reference) Push(value interface{}) (name string, err error) {
 	b, err := jsonReader(value)
 	if err != nil {
 		return "", errors.New(fmt.Sprintf("error reading body: %v", err))
@@ -288,7 +289,7 @@ func (r Reference) Push(value interface{}) (name string, err error) {
 //
 // See https://firebase.google.com/docs/reference/js/firebase.database.Reference#remove
 // for more details.
-func (r Reference) Remove() (err error) {
+func (r *Reference) Remove() (err error) {
 	req, err := http.NewRequest("DELETE", r.addAuth().jsonUrl(), nil)
 	if err != nil {
 		return errors.New(fmt.Sprintf("error while building the request: %v", err))

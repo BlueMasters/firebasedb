@@ -16,16 +16,17 @@ package firebasedb
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 var allSubscriptions []*Subscription
 var result chan string
 
-func startReceiver(t *testing.T, r Reference, wg *sync.WaitGroup, n int) {
+func startReceiver(t *testing.T, r *Reference, wg *sync.WaitGroup, n int) {
 	s, err := r.Child("live").Subscribe()
 	allSubscriptions[n] = s
 	assert.NoError(t, err)
@@ -39,7 +40,7 @@ func startReceiver(t *testing.T, r Reference, wg *sync.WaitGroup, n int) {
 	}
 }
 
-func startSender(t *testing.T, r Reference, wg *sync.WaitGroup, n int, nobjs int) {
+func startSender(t *testing.T, r *Reference, wg *sync.WaitGroup, n int, nobjs int) {
 	for i := 0; i < nobjs; i++ {
 		objectId := fmt.Sprintf("XXL-%06d-%06d", n, i)
 		err := r.Child("live").Set(&objectId)

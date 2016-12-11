@@ -37,13 +37,14 @@ package firebasedb
 import (
 	"errors"
 	"fmt"
-	"github.com/cenkalti/backoff"
 	"io"
 	"net/http"
 	urllib "net/url"
 	pathlib "path"
 	"strconv"
 	"strings"
+
+	"github.com/cenkalti/backoff"
 )
 
 // Reference represents a specific location in the database and can be used
@@ -60,14 +61,14 @@ type Reference struct {
 }
 
 // NewReference creates a new Firebase DB reference at url passed as parameter.
-func NewReference(url string) Reference {
+func NewReference(url string) *Reference {
 	parsedUrl, err := urllib.Parse(url)
 	if err != nil {
-		return Reference{
+		return &Reference{
 			Error: err,
 		}
 	}
-	return Reference{
+	return &Reference{
 		url:   *parsedUrl,
 		Error: nil,
 	}
@@ -76,23 +77,23 @@ func NewReference(url string) Reference {
 // PassKeepAlive sets the passKeepAlive flag of the Reference. When the references is
 // used in the Subscribe() method, the passKeepAlive flag controls the automatic handling
 // if keep-alive messages.
-func (r Reference) PassKeepAlive(value bool) Reference {
-	result := r
+func (r *Reference) PassKeepAlive(value bool) *Reference {
+	result := *r
 	result.passKeepAlive = value
-	return result
+	return &result
 }
 
 // Retry sets the retry policy for the Reference. When a references has the retry policy set,
 // then the library will retry the requests in case of failures.
-func (r Reference) Retry(backOff *backoff.ExponentialBackOff) Reference {
-	result := r
+func (r *Reference) Retry(backOff *backoff.ExponentialBackOff) *Reference {
+	result := *r
 	result.retry = backOff
-	return result
+	return &result
 }
 
 // httpClient returns the HTTP client from the reference or
 // http.DefaultClient if no client has been configured.
-func (r Reference) httpClient() *http.Client {
+func (r *Reference) httpClient() *http.Client {
 	if r.client == nil {
 		return http.DefaultClient
 	} else {
@@ -101,24 +102,24 @@ func (r Reference) httpClient() *http.Client {
 }
 
 // withParam is a local function to add an error to a reference.
-func (r Reference) withError(err error) Reference {
-	result := r
+func (r *Reference) withError(err error) *Reference {
+	result := *r
 	result.Error = err
-	return result
+	return &result
 }
 
 // withParam is a local function to add query parameter to the URL of the reference.
-func (r Reference) withParam(key, value string) Reference {
-	result := r
+func (r *Reference) withParam(key, value string) *Reference {
+	result := *r
 	q := r.url.Query()
 	q.Set(key, value)
 	result.url.RawQuery = q.Encode()
-	return result
+	return &result
 }
 
 // withParam is a local function to add quoted query parameter to the URL. Integer are
 // returned as numbers and string are surrounded by double quotes.
-func (r Reference) withQuotedParam(key string, value interface{}) Reference {
+func (r *Reference) withQuotedParam(key string, value interface{}) *Reference {
 	var qvalue string = ""
 	var err error = nil
 	switch i := value.(type) {
@@ -144,10 +145,10 @@ func (r Reference) withQuotedParam(key string, value interface{}) Reference {
 // See https://firebase.google.com/docs/reference/js/firebase.database.Reference#ref
 // or https://firebase.google.com/docs/reference/js/firebase.database.Database#ref
 // for more details.
-func (r Reference) Ref(path string) Reference {
-	result := r
+func (r *Reference) Ref(path string) *Reference {
+	result := *r
 	result.url.Path = pathlib.Clean(pathlib.Join("/", path))
-	return result
+	return &result
 }
 
 // RefFromUrl returns a reference to the root or the path specified in url.
@@ -155,7 +156,7 @@ func (r Reference) Ref(path string) Reference {
 //
 // See https://firebase.google.com/docs/reference/js/firebase.database.Database#refFromURL
 // for more details.
-func (r Reference) RefFromUrl(url urllib.URL) Reference {
+func (r *Reference) RefFromUrl(url urllib.URL) *Reference {
 	if r.url.Host != url.Host {
 		return r.withError(errors.New("The URL has not the same host as the current database"))
 	} else {
@@ -164,14 +165,14 @@ func (r Reference) RefFromUrl(url urllib.URL) Reference {
 }
 
 // Rules returns a reference to the rules settings of the database.
-func (r Reference) Rules() Reference {
+func (r *Reference) Rules() *Reference {
 	return r.Ref(".settings/rules")
 }
 
-func (r Reference) Debug(w io.Writer) Reference {
-	result := r
+func (r *Reference) Debug(w io.Writer) *Reference {
+	result := *r
 	result.debug = w
-	return result
+	return &result
 }
 
 // Auth authenticates the request to allow access to data protected by Firebase Realtime Database Rules.
@@ -184,10 +185,10 @@ func (r Reference) Debug(w io.Writer) Reference {
 // See https://firebase.google.com/docs/reference/rest/database/#section-param-auth
 // and https://firebase.google.com/docs/reference/rest/database/user-auth
 // for more details.
-func (r Reference) Auth(auth Authenticator) Reference {
-	result := r
+func (r *Reference) Auth(auth Authenticator) *Reference {
+	result := *r
 	result.auth = auth
-	return result
+	return &result
 }
 
 // Shallow is an advanced feature, designed to help you work with large datasets without
@@ -198,7 +199,7 @@ func (r Reference) Auth(auth Authenticator) Reference {
 //
 // See https://firebase.google.com/docs/reference/rest/database/#section-param-shallow
 // for more details.
-func (r Reference) Shallow() Reference {
+func (r *Reference) Shallow() *Reference {
 	return r.withParam("shallow", "true")
 }
 
@@ -207,7 +208,7 @@ func (r Reference) Shallow() Reference {
 //
 // See https://firebase.google.com/docs/reference/rest/database/#section-param-print
 // for more details.
-func (r Reference) Pretty() Reference {
+func (r *Reference) Pretty() *Reference {
 	return r.withParam("print", "pretty")
 }
 
@@ -216,7 +217,7 @@ func (r Reference) Pretty() Reference {
 //
 // See https://firebase.google.com/docs/reference/rest/database/#section-param-print
 // for more details.
-func (r Reference) Silent() Reference {
+func (r *Reference) Silent() *Reference {
 	return r.withParam("print", "silent")
 }
 
@@ -224,7 +225,7 @@ func (r Reference) Silent() Reference {
 //
 // See https://firebase.google.com/docs/reference/rest/database/#section-param-format
 // for more details.
-func (r Reference) Export() Reference {
+func (r *Reference) Export() *Reference {
 	return r.withParam("format", "export")
 }
 
@@ -233,7 +234,7 @@ func (r Reference) Export() Reference {
 //
 // See https://firebase.google.com/docs/reference/js/firebase.database.Reference#key
 // for more detail.
-func (r Reference) Key() string {
+func (r *Reference) Key() string {
 	p := pathlib.Base(pathlib.Clean(r.url.Path))
 	if p == "." || p == "/" {
 		return ""
@@ -246,36 +247,36 @@ func (r Reference) Key() string {
 //
 // See https://firebase.google.com/docs/reference/js/firebase.database.Reference#parent
 // for more details.
-func (r Reference) Parent() Reference {
-	result := r
+func (r *Reference) Parent() *Reference {
+	result := *r
 	result.url.Path = pathlib.Clean(pathlib.Join(result.url.Path, ".."))
-	return result
+	return &result
 }
 
 // Root returns the root location of a reference.
 //
 // See https://firebase.google.com/docs/reference/js/firebase.database.Reference#root
 // for more details.
-func (r Reference) Root() Reference {
-	result := r
+func (r *Reference) Root() *Reference {
+	result := *r
 	result.url.Path = "/"
-	return result
+	return &result
 }
 
 // Childs returns a reference for the location at the specified relative path.
 //
 // See https://firebase.google.com/docs/reference/js/firebase.database.Reference#child
 // for more details.
-func (r Reference) Child(path string) Reference {
-	result := r
+func (r *Reference) Child(path string) *Reference {
+	result := *r
 	result.url.Path = pathlib.Clean(pathlib.Join(result.url.Path, path))
-	return result
+	return &result
 }
 
 // String returns the absolute URL for this location.
 //
 // See https://firebase.google.com/docs/reference/js/firebase.database.Reference#toString
 // for more details.
-func (r Reference) String() string {
+func (r *Reference) String() string {
 	return r.url.String()
 }

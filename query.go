@@ -23,7 +23,7 @@ import (
 // See https://firebase.google.com/docs/reference/js/firebase.database.Reference#orderByChild
 // or https://firebase.google.com/docs/reference/js/firebase.database.Query#orderByChild
 // for more details
-func (r Reference) OrderByChild(childKey string) Reference {
+func (r *Reference) OrderByChild(childKey string) *Reference {
 	return r.withQuotedParam("orderBy", childKey)
 }
 
@@ -32,7 +32,7 @@ func (r Reference) OrderByChild(childKey string) Reference {
 // See https://firebase.google.com/docs/reference/js/firebase.database.Reference#orderByKey
 // https://firebase.google.com/docs/reference/js/firebase.database.Query#orderByKey
 // for more details
-func (r Reference) OrderByKey() Reference {
+func (r *Reference) OrderByKey() *Reference {
 	return r.OrderByChild("$key")
 }
 
@@ -41,7 +41,7 @@ func (r Reference) OrderByKey() Reference {
 // See https://firebase.google.com/docs/reference/js/firebase.database.Reference#orderByValue
 // or https://firebase.google.com/docs/reference/js/firebase.database.Query#orderByValue
 // for more details
-func (r Reference) OrderByValue() Reference {
+func (r *Reference) OrderByValue() *Reference {
 	return r.OrderByChild("$value")
 }
 
@@ -50,7 +50,7 @@ func (r Reference) OrderByValue() Reference {
 // See https://firebase.google.com/docs/reference/js/firebase.database.Reference#limitToFirst
 // or https://firebase.google.com/docs/reference/js/firebase.database.Query#limitToFirst
 // for more details
-func (r Reference) LimitToFirst(n int) Reference {
+func (r *Reference) LimitToFirst(n int) *Reference {
 	return r.withParam("limitToFirst", strconv.Itoa(n))
 }
 
@@ -59,7 +59,7 @@ func (r Reference) LimitToFirst(n int) Reference {
 // See https://firebase.google.com/docs/reference/js/firebase.database.Reference#limitToLast
 // or https://firebase.google.com/docs/reference/js/firebase.database.Query#limitToLast
 // for more details
-func (r Reference) LimitToLast(n int) Reference {
+func (r *Reference) LimitToLast(n int) *Reference {
 	return r.withParam("limitToLast", strconv.Itoa(n))
 }
 
@@ -68,7 +68,7 @@ func (r Reference) LimitToLast(n int) Reference {
 // See https://firebase.google.com/docs/reference/js/firebase.database.Reference#startAt
 // or https://firebase.google.com/docs/reference/js/firebase.database.Query#startAt
 // for more details.
-func (r Reference) StartAt(n interface{}) Reference {
+func (r *Reference) StartAt(n interface{}) *Reference {
 	return r.withQuotedParam("startAt", n)
 }
 
@@ -77,7 +77,7 @@ func (r Reference) StartAt(n interface{}) Reference {
 // See https://firebase.google.com/docs/reference/js/firebase.database.Reference#endAt
 // or https://firebase.google.com/docs/reference/js/firebase.database.Query#endAt
 // for more details
-func (r Reference) EndAt(n interface{}) Reference {
+func (r *Reference) EndAt(n interface{}) *Reference {
 	return r.withQuotedParam("endAt", n)
 }
 
@@ -86,6 +86,6 @@ func (r Reference) EndAt(n interface{}) Reference {
 // See https://firebase.google.com/docs/reference/js/firebase.database.Reference#equalTo
 // or https://firebase.google.com/docs/reference/js/firebase.database.Query#equalTo
 // for more details
-func (r Reference) EqualTo(n interface{}) Reference {
+func (r *Reference) EqualTo(n interface{}) *Reference {
 	return r.withQuotedParam("equalTo", n)
 }
